@@ -305,7 +305,7 @@ def build_document(file_path):
         ],
         [
             "Quản lý công việc",
-            "• Lập kế hoạch sự kiện\n• Phân công nhiệm vụ cho nhân sự\n• Theo dõi tiến độ (% hoàn thành)\n• Cập nhật trạng thái công việc",
+            "• Lập kế hoạch sự kiện\n• Phân công nhiệm vụ cho nhân sự\n• Theo dõi tiến độ\n• Cập nhật trạng thái công việc",
             "Quanlycongviec.java\nBảng danh sách công việc\nThanh tiến độ ProgressBar",
             "GET /api/cong-viec/danh-sach\nPOST /api/cong-viec/them\nEntity: CongViec"
         ],
@@ -426,59 +426,59 @@ def build_document(file_path):
     
     # 4.1. Nhiệm vụ của Thái
     add_heading_2(doc, "4.1. Danh mục công việc chi tiết - Cán bộ phụ trách (Thái)")
-    headers_t = ["Mã Task", "Tên đầu việc", "Chi tiết công việc & Nghiệp vụ", "Thời gian", "Tiến độ", "Kết quả đầu ra"]
-    widths_t = [0.8, 1.6, 2.7, 1.0, 0.9, 1.2]
+    headers_t = ["Mã Task", "Tên đầu việc", "Chi tiết công việc & Nghiệp vụ", "Thời gian", "Kết quả đầu ra"]
+    widths_t = [0.8, 1.7, 3.1, 1.0, 1.6]
     data_t = [
-        ["TK-01", "Giao diện Login", "Thiết kế trang Login chuẩn WinForms, toggle ẩn/hiện mật khẩu, bắt phím Enter", "Tuần 2", "100%", "Login.java"],
-        ["TK-02", "Dashboard Cán bộ", "Tạo Sidebar màu sắc chuẩn, 5 nút điều hướng, cơ chế chuyển đổi CardPanel", "Tuần 2", "100%", "DashboardCanbo.java"],
-        ["TK-03", "Trang chủ & KPI", "Tạo 6 Card thống kê số lượng lớn, Footer hiển thị ngày tự động, gọi API tổng quan", "Tuần 2", "100%", "Trangchu.java"],
-        ["TK-04", "Báo cáo Thống kê", "Vẽ biểu đồ BarChart 12 tháng bằng Graphics2D, 7 ô KPI chỉ số, bộ lọc ngày", "Tuần 2", "100%", "Lapbaocaothongke.java"],
-        ["TK-05", "Quản lý Tài liệu", "Bảng danh sách tài liệu sự kiện, chức năng Tải lên, Xuất file XLSX, Xóa tài liệu", "Tuần 2-3", "100%", "Quanlytailieusukien.java"],
-        ["TK-06", "Quản lý Công việc", "Bảng tiến độ công việc sự kiện, phân công nhân sự, hiển thị ProgressBar", "Tuần 3", "100%", "Quanlycongviec.java"],
-        ["TK-07", "Quản lý Người tham gia", "Bảng người tham gia, Badge màu (Vắng/Đã điểm danh), Dropdown điểm danh, Tìm kiếm", "Tuần 2-3", "100%", "Quanlynguoithamgia.java"],
-        ["TK-08", "Quản lý Thông báo", "SplitPane 2 cột (Danh sách + Form soạn thảo thông báo), CRUD thông báo", "Tuần 3", "100%", "Quanlythongbao.java"],
-        ["TK-09", "Tích hợp Backend API", "Kết nối các endpoint /api/thongke, /api/tai-lieu, /api/nguoi-tham-gia", "Tuần 4-5", "90%", "ApiClient / SwingWorker"]
+        ["TK-01", "Giao diện Login", "Thiết kế trang Login chuẩn WinForms, toggle ẩn/hiện mật khẩu, bắt phím Enter", "Tuần 2", "Login.java"],
+        ["TK-02", "Dashboard Cán bộ", "Tạo Sidebar màu sắc chuẩn, 5 nút điều hướng, cơ chế chuyển đổi CardPanel", "Tuần 2", "DashboardCanbo.java"],
+        ["TK-03", "Trang chủ & KPI", "Tạo 6 Card thống kê số lượng lớn, Footer hiển thị ngày tự động, gọi API tổng quan", "Tuần 2", "Trangchu.java"],
+        ["TK-04", "Báo cáo Thống kê", "Vẽ biểu đồ BarChart 12 tháng bằng Graphics2D, 7 ô KPI chỉ số, bộ lọc ngày", "Tuần 2", "Lapbaocaothongke.java"],
+        ["TK-05", "Quản lý Tài liệu", "Bảng danh sách tài liệu sự kiện, chức năng Tải lên, Xuất file XLSX, Xóa tài liệu", "Tuần 2-3", "Quanlytailieusukien.java"],
+        ["TK-06", "Quản lý Công việc", "Bảng tiến độ công việc sự kiện, phân công nhân sự, hiển thị ProgressBar", "Tuần 3", "Quanlycongviec.java"],
+        ["TK-07", "Quản lý Người tham gia", "Bảng người tham gia, Badge màu (Vắng/Đã điểm danh), Dropdown điểm danh, Tìm kiếm", "Tuần 2-3", "Quanlynguoithamgia.java"],
+        ["TK-08", "Quản lý Thông báo", "SplitPane 2 cột (Danh sách + Form soạn thảo thông báo), CRUD thông báo", "Tuần 3", "Quanlythongbao.java"],
+        ["TK-09", "Tích hợp Backend API", "Kết nối các endpoint /api/thongke, /api/tai-lieu, /api/nguoi-tham-gia", "Tuần 4-5", "ApiClient / SwingWorker"]
     ]
-    t_t = doc.add_table(rows=1, cols=6)
+    t_t = doc.add_table(rows=1, cols=5)
     style_table(t_t, widths_t, headers_t, data_t, header_bg="16A085")
     
     doc.add_paragraph()
 
     # 4.2. Nhiệm vụ của Thúy
     add_heading_2(doc, "4.2. Danh mục công việc chi tiết - Sinh viên (Thúy)")
-    headers_s = ["Mã Task", "Tên đầu việc", "Chi tiết công việc & Nghiệp vụ", "Thời gian", "Tiến độ", "Kết quả đầu ra"]
-    widths_s = [0.8, 1.6, 2.7, 1.0, 0.9, 1.2]
+    headers_s = ["Mã Task", "Tên đầu việc", "Chi tiết công việc & Nghiệp vụ", "Thời gian", "Kết quả đầu ra"]
+    widths_s = [0.8, 1.7, 3.1, 1.0, 1.6]
     data_s = [
-        ["SV-01", "Dashboard Sinh viên", "Tạo khung điều hướng dành riêng cho Sinh viên, lời chào cá nhân hóa", "Tuần 3", "100%", "DashboardHocSinh.java"],
-        ["SV-02", "Tra cứu sự kiện", "Xem danh sách sự kiện mở, tìm kiếm sự kiện theo tên, lọc sự kiện theo khoảng ngày", "Tuần 3", "100%", "TraCuuSuKien.java"],
-        ["SV-03", "Xem chi tiết sự kiện", "Hiển thị thời gian, địa điểm, thể lệ, số lượng slot và yêu cầu tham dự", "Tuần 3", "100%", "Dialog chi tiết sự kiện"],
-        ["SV-04", "Đăng ký sự kiện", "Xử lý nút Đăng ký, kiểm tra trùng lặp, cập nhật trạng thái tham gia vào DB", "Tuần 3-4", "95%", "POST /api/participants"],
-        ["SV-05", "Sự kiện của tôi", "Hiển thị danh sách sự kiện đã đăng ký, hỗ trợ nút Hủy đăng ký có xác nhận", "Tuần 3", "100%", "SuKienCuaToi.java"],
-        ["SV-06", "Đánh giá & Phản hồi", "Form đánh giá chất lượng tổ chức sự kiện, chấm sao và gửi ý kiến đóng góp", "Tuần 4", "100%", "DanhGiaPhanHoi.java"],
-        ["SV-07", "Thông tin cá nhân", "Xem thông tin sinh viên (MSSV, Họ tên, Lớp, SĐT, Email), form cập nhật thông tin", "Tuần 4", "100%", "ThongTinCaNhan.java"],
-        ["SV-08", "Kiểm thử trải nghiệm", "Đóng vai người học kiểm thử luồng đăng ký, hủy và nhận thông báo kết quả", "Tuần 5-6", "85%", "Kịch bản Test Sinh viên"]
+        ["SV-01", "Dashboard Sinh viên", "Tạo khung điều hướng dành riêng cho Sinh viên, lời chào cá nhân hóa", "Tuần 3", "DashboardHocSinh.java"],
+        ["SV-02", "Tra cứu sự kiện", "Xem danh sách sự kiện mở, tìm kiếm sự kiện theo tên, lọc sự kiện theo khoảng ngày", "Tuần 3", "TraCuuSuKien.java"],
+        ["SV-03", "Xem chi tiết sự kiện", "Hiển thị thời gian, địa điểm, thể lệ, số lượng slot và yêu cầu tham dự", "Tuần 3", "Dialog chi tiết sự kiện"],
+        ["SV-04", "Đăng ký sự kiện", "Xử lý nút Đăng ký, kiểm tra trùng lặp, cập nhật trạng thái tham gia vào DB", "Tuần 3-4", "POST /api/participants"],
+        ["SV-05", "Sự kiện của tôi", "Hiển thị danh sách sự kiện đã đăng ký, hỗ trợ nút Hủy đăng ký có xác nhận", "Tuần 3", "SuKienCuaToi.java"],
+        ["SV-06", "Đánh giá & Phản hồi", "Form đánh giá chất lượng tổ chức sự kiện, chấm sao và gửi ý kiến đóng góp", "Tuần 4", "DanhGiaPhanHoi.java"],
+        ["SV-07", "Thông tin cá nhân", "Xem thông tin sinh viên (MSSV, Họ tên, Lớp, SĐT, Email), form cập nhật thông tin", "Tuần 4", "ThongTinCaNhan.java"],
+        ["SV-08", "Kiểm thử trải nghiệm", "Đóng vai người học kiểm thử luồng đăng ký, hủy và nhận thông báo kết quả", "Tuần 5-6", "Kịch bản Test Sinh viên"]
     ]
-    t_s = doc.add_table(rows=1, cols=6)
+    t_s = doc.add_table(rows=1, cols=5)
     style_table(t_s, widths_s, headers_s, data_s, header_bg="D35400")
 
     doc.add_paragraph()
 
     # 4.3. Nhiệm vụ của Ngọc Anh
     add_heading_2(doc, "4.3. Danh mục công việc chi tiết - Admin / Quản trị viên (Ngọc Anh)")
-    headers_a = ["Mã Task", "Tên đầu việc", "Chi tiết công việc & Nghiệp vụ", "Thời gian", "Tiến độ", "Kết quả đầu ra"]
-    widths_a = [0.8, 1.6, 2.7, 1.0, 0.9, 1.2]
+    headers_a = ["Mã Task", "Tên đầu việc", "Chi tiết công việc & Nghiệp vụ", "Thời gian", "Kết quả đầu ra"]
+    widths_a = [0.8, 1.7, 3.1, 1.0, 1.6]
     data_a = [
-        ["AD-01", "Cơ sở dữ liệu & Entity", "Thiết kế các bảng MySQL: tai_khoan, events, documents, notifications, reports", "Tuần 1", "100%", "V1__init_database.sql"],
-        ["AD-02", "Bảo mật & Phân quyền", "Cấu hình Spring Security, phân quyền 3 Role (ADMIN, CAN_BO, HOC_SINH)", "Tuần 1-2", "100%", "SecurityConfig.java"],
-        ["AD-03", "Data Seeder hệ thống", "Tự động tạo 30 tài khoản kiểm thử (1 Admin, 15 Cán bộ, 14 Học sinh)", "Tuần 1", "100%", "DataSeeder.java"],
-        ["AD-04", "API Xác thực (Auth)", "Viết API /api/auth/login kiểm tra đăng nhập và phản hồi vai trò tương ứng", "Tuần 2", "100%", "AuthController.java"],
-        ["AD-05", "Dashboard Admin UI", "Thiết kế giao diện quản trị viên: Quản lý người dùng, phân quyền, trạng thái", "Tuần 4", "95%", "DashboardAdmin.java"],
-        ["AD-06", "Quản lý sự kiện cấp Admin", "Duyệt kế hoạch sự kiện từ các đơn vị gửi lên, phân công cán bộ phụ trách", "Tuần 4", "90%", "Module Quản trị Sự kiện"],
-        ["AD-07", "Quản lý & Duyệt thông báo", "Kiểm duyệt nội dung thông báo trước khi phát hành toàn trường, gỡ bỏ thông báo", "Tuần 4-5", "90%", "ThongBaoController"],
-        ["AD-08", "Quản lý Maven Wrapper", "Cấu hình maven-wrapper (mvnw, mvnw.cmd) hỗ trợ chạy terminal không phụ thuộc cài đặt", "Tuần 2", "100%", "frontend/mvnw"],
-        ["AD-09", "Đóng gói & Triển khai", "Kiểm thử tích hợp hệ thống, build artifact jar, viết tài liệu kỹ thuật", "Tuần 5-6", "85%", "Tài liệu kỹ thuật / Build JAR"]
+        ["AD-01", "Cơ sở dữ liệu & Entity", "Thiết kế các bảng MySQL: tai_khoan, events, documents, notifications, reports", "Tuần 1", "V1__init_database.sql"],
+        ["AD-02", "Bảo mật & Phân quyền", "Cấu hình Spring Security, phân quyền 3 Role (ADMIN, CAN_BO, HOC_SINH)", "Tuần 1-2", "SecurityConfig.java"],
+        ["AD-03", "Data Seeder hệ thống", "Tự động tạo 30 tài khoản kiểm thử (1 Admin, 15 Cán bộ, 14 Học sinh)", "Tuần 1", "DataSeeder.java"],
+        ["AD-04", "API Xác thực (Auth)", "Viết API /api/auth/login kiểm tra đăng nhập và phản hồi vai trò tương ứng", "Tuần 2", "AuthController.java"],
+        ["AD-05", "Dashboard Admin UI", "Thiết kế giao diện quản trị viên: Quản lý người dùng, phân quyền, trạng thái", "Tuần 4", "DashboardAdmin.java"],
+        ["AD-06", "Quản lý sự kiện cấp Admin", "Duyệt kế hoạch sự kiện từ các đơn vị gửi lên, phân công cán bộ phụ trách", "Tuần 4", "Module Quản trị Sự kiện"],
+        ["AD-07", "Quản lý & Duyệt thông báo", "Kiểm duyệt nội dung thông báo trước khi phát hành toàn trường, gỡ bỏ thông báo", "Tuần 4-5", "ThongBaoController"],
+        ["AD-08", "Quản lý Maven Wrapper", "Cấu hình maven-wrapper (mvnw, mvnw.cmd) hỗ trợ chạy terminal không phụ thuộc cài đặt", "Tuần 2", "frontend/mvnw"],
+        ["AD-09", "Đóng gói & Triển khai", "Kiểm thử tích hợp hệ thống, build artifact jar, viết tài liệu kỹ thuật", "Tuần 5-6", "Tài liệu kỹ thuật / Build JAR"]
     ]
-    t_a = doc.add_table(rows=1, cols=6)
+    t_a = doc.add_table(rows=1, cols=5)
     style_table(t_a, widths_a, headers_a, data_a, header_bg="2C3E50")
 
     doc.add_paragraph()
