@@ -58,7 +58,7 @@ public class DangKyController {
     @GetMapping("/trang-thai")
     public Map<String, Object> getTrangThai(@RequestParam Long suKienId, @RequestParam String tenDangNhap) {
         return repo.findBySuKienIdAndTenDangNhap(suKienId, tenDangNhap)
-                .<Map<String, Object>>map(dk -> Map.of("trangThai", dk.getTrangThai()))
+                .<Map<String, Object>>map(dk -> Map.of("trangThai", dk.getTrangThai(), "id", dk.getId()))
                 .orElse(Map.of("trangThai", "Chưa đăng ký"));
     }
 
@@ -72,7 +72,7 @@ public class DangKyController {
         String tenDangNhap = body.get("tenDangNhap").toString();
 
         SuKien sk = suKienRepo.findById(suKienId).orElse(null);
-        if (sk == null) {
+        if (sk == null || !SuKienController.daDuyet(sk)) {
             return loi("Sự kiện không tồn tại");
         }
         if ("Đã hủy".equals(sk.getTrangThai()) || "Đã kết thúc".equals(sk.getTrangThai())) {

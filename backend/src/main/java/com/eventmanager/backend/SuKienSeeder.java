@@ -91,6 +91,12 @@ public class SuKienSeeder implements CommandLineRunner {
         taoDangKy(sk1, "hocsinh01", DA_THAM_GIA);
         taoDangKy(sk2, "hocsinh01", DA_THAM_GIA);
         taoDangKy(sk4, "hocsinh01", DangKyController.DA_DANG_KY);
+        // ...và đã đánh giá 2 sự kiện khác (để bảng "Đánh giá bạn đã gửi" có dữ liệu).
+        // SK002 cố ý để chưa đánh giá, dùng thử chức năng gửi đánh giá.
+        taoDangKy(sk9, "hocsinh01", DA_THAM_GIA);
+        taoDangKy(sk10, "hocsinh01", DA_THAM_GIA);
+        luuDanhGia(sk9, "hocsinh01", 4, "Học được cách viết CV và chuẩn bị phỏng vấn, diễn giả chia sẻ rất thực tế.", 1);
+        luuDanhGia(sk10, "hocsinh01", 5, "Gặp được nhiều doanh nghiệp, mình đã nộp CV thực tập ngay tại sự kiện!", 2);
 
         // Các sinh viên còn lại: trạng thái sinh theo công thức cố định để lần chạy nào cũng giống nhau
         List<SuKien> daDienRa = List.of(sk8, sk9, sk10, sk1, sk2, sk11);
@@ -192,17 +198,22 @@ public class SuKienSeeder implements CommandLineRunner {
 
     // Chỉ đánh giá khi sinh viên thực sự "Đã tham gia" sự kiện
     private void taoDanhGia(SuKien sk, String tenDangNhap, int hat) {
+        int soSao = hat % 7 == 0 ? 2 : 3 + hat % 3; // phần lớn 3-5 sao, thỉnh thoảng 2 sao
+        luuDanhGia(sk, tenDangNhap, soSao, NHAN_XET[soSao][hat % 2], 1 + hat % 2);
+    }
+
+    // Lưu 1 đánh giá, gửi sau ngày diễn ra vài ngày; bỏ qua nếu đã có hoặc sinh viên không "Đã tham gia"
+    private void luuDanhGia(SuKien sk, String tenDangNhap, int soSao, String noiDung, int sauSoNgay) {
         DangKySuKien dk = dangKyRepo.findBySuKienIdAndTenDangNhap(sk.getId(), tenDangNhap).orElse(null);
         if (dk == null || !DA_THAM_GIA.equals(dk.getTrangThai())) return;
         if (danhGiaRepo.findBySuKienIdAndTenDangNhap(sk.getId(), tenDangNhap).isPresent()) return;
 
-        int soSao = hat % 7 == 0 ? 2 : 3 + hat % 3; // phần lớn 3-5 sao, thỉnh thoảng 2 sao
         DanhGiaSuKien dg = new DanhGiaSuKien();
         dg.setSuKienId(sk.getId());
         dg.setTenDangNhap(tenDangNhap);
         dg.setSoSao(soSao);
-        dg.setNoiDung(NHAN_XET[soSao][hat % 2]);
-        LocalDateTime ngay = sk.getThoiGianBatDau().plusDays(1 + hat % 2);
+        dg.setNoiDung(noiDung);
+        LocalDateTime ngay = sk.getThoiGianBatDau().plusDays(sauSoNgay);
         dg.setNgayDanhGia(ngay.isAfter(now) ? now : ngay);
         danhGiaRepo.save(dg);
         soDanhGiaMoi++;

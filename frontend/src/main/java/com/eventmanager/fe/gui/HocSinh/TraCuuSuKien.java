@@ -1,184 +1,180 @@
 package com.eventmanager.fe.gui.HocSinh;
 
-import com.eventmanager.fe.api.ApiClient;
+import com.eventmanager.fe.gui.Admin.common.*;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.toedter.calendar.JDateChooser;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.time.ZoneId;
-import java.util.Date;
+import java.util.*;
+import java.util.List;
 
 /**
- * Use case "Tra cứu sự kiện": xem danh sách, tìm kiếm, lọc theo ngày, xem chi tiết
- * và nút "Đăng ký tham gia" ngay trên danh sách.
+ * Use case "Tra cứu sự kiện": xem danh sách, tìm kiếm, lọc theo ngày, xem chi tiết,
+ * và đăng ký tham gia ngay trên từng dòng.
  */
-public class TraCuuSuKien {
-    private final String tenDangNhap;
-    private final Runnable onDaDangKy; // báo cho Dashboard để làm mới màn "Sự kiện của tôi"
+public class TraCuuSuKien extends TrangSinhVien {
 
-    private JPanel mainPanel;
-    private JTextField txtTuKhoa;
-    private JDateChooser dcTuNgay;
-    private JDateChooser dcDenNgay;
-    private JTable table;
-    private DefaultTableModel model;
-    private JLabel lblTong;
+    private static final String[] TRANG_THAI = {"Tất cả trạng thái", "Sắp diễn ra", "Đang diễn ra", "Đã kết thúc", "Đã hủy"};
 
-    // Cột 0 = id (ẩn)
-    private static final int COT_ID = 0;
+    private final UI.TextFieldDep oTim = UI.oTimKiem("Tìm theo tên sự kiện...");
+    private final JDateChooser dcTuNgay = HocSinhUI.oChonNgay();
+    private final JDateChooser dcDenNgay = HocSinhUI.oChonNgay();
+    private final JComboBox<String> cbTrangThai = UI.hopChon(TRANG_THAI, Icons.CALENDAR);
+    private final BangDep bang = new BangDep("id", "Sự kiện", "Bắt đầu", "Số chỗ", "Trạng thái", "Của tôi", "Thao tác");
+    private final JLabel lblSoLuong = UI.nhan(" ", Theme.SMALL, Theme.MUTED);
 
-    public TraCuuSuKien(String tenDangNhap, Runnable onDaDangKy) {
-        this.tenDangNhap = tenDangNhap;
-        this.onDaDangKy = onDaDangKy;
-        initUI();
-        taiDuLieu();
-    }
+    private final List<JsonObject> tatCa = new ArrayList<>();
+    private final List<JsonObject> dangHien = new ArrayList<>();
+    private final Map<Long, String> cuaToi = new HashMap<>();
 
-    private void initUI() {
-        mainPanel = HocSinhUI.taoTrang("Tra cứu sự kiện");
+    public TraCuuSuKien(DieuHuong dieuHuong) {
+        super(dieuHuong);
+        add(UI.tieuDeTrang("Tra cứu sự kiện", "Tìm sự kiện theo tên, khoảng ngày; xem chi tiết và đăng ký tham gia"),
+                BorderLayout.NORTH);
 
-        // --- Thanh tìm kiếm / lọc ---
-        JPanel loc = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        loc.setBackground(Color.WHITE);
-        txtTuKhoa = new JTextField(18);
-        txtTuKhoa.setFont(HocSinhUI.FONT);
-        dcTuNgay = new JDateChooser();
-        dcTuNgay.setDateFormatString("dd/MM/yyyy");
-        dcTuNgay.setPreferredSize(new Dimension(130, 26));
-        dcDenNgay = new JDateChooser();
-        dcDenNgay.setDateFormatString("dd/MM/yyyy");
-        dcDenNgay.setPreferredSize(new Dimension(130, 26));
-        JButton btnTim = HocSinhUI.taoNutChinh("Tìm kiếm");
-        JButton btnLamMoi = HocSinhUI.taoNut("Làm mới");
+        UI.RoundPanel the = UI.card(new BorderLayout(0, 14), 0);
+        the.setBorder(new EmptyBorder(16, 16, 14, 16));
 
-        loc.add(new JLabel("Tên sự kiện:"));
-        loc.add(txtTuKhoa);
-        loc.add(new JLabel("Từ ngày:"));
-        loc.add(dcTuNgay);
-        loc.add(new JLabel("Đến ngày:"));
-        loc.add(dcDenNgay);
-        loc.add(btnTim);
-        loc.add(btnLamMoi);
+        // --- Thanh lọc ---
+        JPanel loc = new JPanel(new GridBagLayout());
+        loc.setOpaque(false);
+        GridBagConstraints g = new GridBagConstraints();
+        g.fill = GridBagConstraints.HORIZONTAL;
+        g.weightx = 1;
+        oTim.setPreferredSize(new Dimension(240, 38));
+        loc.add(oTim, g);
+        g.weightx = 0;
+        g.insets = new Insets(0, 12, 0, 0);
+        loc.add(UI.nhan("Từ", Theme.SMALL_BOLD, Theme.TEXT_2), g);
+        g.insets = new Insets(0, 6, 0, 0);
+        loc.add(dcTuNgay, g);
+        g.insets = new Insets(0, 10, 0, 0);
+        loc.add(UI.nhan("đến", Theme.SMALL_BOLD, Theme.TEXT_2), g);
+        g.insets = new Insets(0, 6, 0, 0);
+        loc.add(dcDenNgay, g);
+        g.insets = new Insets(0, 12, 0, 0);
+        cbTrangThai.setPreferredSize(new Dimension(170, 38));
+        loc.add(cbTrangThai, g);
+        UI.FlatButton btnTim = UI.nut("Tìm", Icons.SEARCH, UI.Kieu.CHINH);
+        loc.add(btnTim, g);
+        g.insets = new Insets(0, 8, 0, 0);
+        UI.FlatButton btnLamMoi = UI.nutIcon(Icons.REFRESH, "Xóa bộ lọc");
+        loc.add(btnLamMoi, g);
+        the.add(loc, BorderLayout.NORTH);
 
         // --- Bảng ---
-        model = HocSinhUI.taoModel("ID", "Mã", "Tên sự kiện", "Bắt đầu", "Địa điểm", "Số lượng", "Trạng thái");
-        table = HocSinhUI.taoBang(model);
-        HocSinhUI.anCot(table, 1);
-        table.getColumnModel().getColumn(1).setPreferredWidth(260);
+        bang.anCot(0);
+        bang.cotHaiDong(1);
+        bang.doRongCot(1, 300);
+        bang.doRongCot(2, 130);
+        bang.doRongCot(3, 90);
+        HocSinhUI.cotNhan(bang, 4);
+        HocSinhUI.cotNhan(bang, 5);
+        bang.coDinhCot(6, 190);
+        bang.cotThaoTac(6, List.of(
+                        new BangDep.NutThaoTac("chitiet", "Chi tiết", Icons.EYE, "Xem chi tiết sự kiện"),
+                        new BangDep.NutThaoTac("dangky", "Đăng ký", Icons.PLUS, "Đăng ký tham gia")),
+                (ma, dong) -> !ma.equals("dangky") || (dong < dangHien.size() && coTheDangKy(dangHien.get(dong))),
+                (ma, dong) -> {
+                    JsonObject sk = dangHien.get(dong);
+                    long id = Api.n(sk, "id");
+                    if (ma.equals("chitiet")) {
+                        ChiTietSuKien.hien(this, id, dieuHuong.tenDangNhap(), this::taiLai);
+                    } else {
+                        ChiTietSuKien.dangKy(this, id, Api.s(sk, "tenSuKien"), dieuHuong.tenDangNhap(), this::taiLai);
+                    }
+                });
+        bang.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                int r = bang.rowAtPoint(e.getPoint());
+                if (e.getClickCount() == 2 && r >= 0) {
+                    ChiTietSuKien.hien(TraCuuSuKien.this, bang.idDong(r), dieuHuong.tenDangNhap(), TraCuuSuKien.this::taiLai);
+                }
+            }
+        });
+        the.add(bang.trongKhungCuon(), BorderLayout.CENTER);
+        the.add(lblSoLuong, BorderLayout.SOUTH);
+        add(the, BorderLayout.CENTER);
 
-        JPanel giua = new JPanel(new BorderLayout(0, 10));
-        giua.setBackground(Color.WHITE);
-        giua.add(loc, BorderLayout.NORTH);
-        giua.add(HocSinhUI.cuon(table), BorderLayout.CENTER);
-        mainPanel.add(giua, BorderLayout.CENTER);
-
-        // --- Nút dưới ---
-        JPanel duoi = new JPanel(new BorderLayout());
-        duoi.setBackground(Color.WHITE);
-        lblTong = new JLabel(" ");
-        lblTong.setFont(HocSinhUI.FONT);
-        JPanel nut = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
-        nut.setBackground(Color.WHITE);
-        JButton btnChiTiet = HocSinhUI.taoNut("Xem chi tiết");
-        JButton btnDangKy = HocSinhUI.taoNutChinh("Đăng ký tham gia");
-        nut.add(btnChiTiet);
-        nut.add(btnDangKy);
-        duoi.add(lblTong, BorderLayout.WEST);
-        duoi.add(nut, BorderLayout.EAST);
-        mainPanel.add(duoi, BorderLayout.SOUTH);
-
-        // --- Sự kiện ---
-        btnTim.addActionListener(e -> taiDuLieu());
-        txtTuKhoa.addActionListener(e -> taiDuLieu()); // Enter để tìm
+        btnTim.addActionListener(e -> taiLai());
+        oTim.addActionListener(e -> taiLai());
+        cbTrangThai.addActionListener(e -> locVaHien());
         btnLamMoi.addActionListener(e -> {
-            txtTuKhoa.setText("");
+            oTim.setText("");
             dcTuNgay.setDate(null);
             dcDenNgay.setDate(null);
-            taiDuLieu();
-        });
-        btnChiTiet.addActionListener(e -> xemChiTiet());
-        btnDangKy.addActionListener(e -> dangKy());
-        table.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getClickCount() == 2) xemChiTiet();
-            }
+            cbTrangThai.setSelectedIndex(0);
+            taiLai();
         });
     }
 
-    /** Gọi GET /api/su-kien/danh-sach với từ khóa và khoảng ngày rồi đổ lên JTable. */
-    public void taiDuLieu() {
-        Date tu = dcTuNgay.getDate();
-        Date den = dcDenNgay.getDate();
+    /** Ô tìm nhanh trên thanh trên cùng gọi vào đây trước khi mở trang. */
+    public void datTuKhoa(String tuKhoa) {
+        oTim.setText(tuKhoa == null ? "" : tuKhoa);
+    }
+
+    /** GET /api/su-kien/danh-sach (lọc tên + ngày ở backend) và /api/dang-ky/cua-toi (để biết mình đã đăng ký chưa). */
+    @Override
+    public void taiLai() {
+        Date tu = dcTuNgay.getDate(), den = dcDenNgay.getDate();
         if (tu != null && den != null && tu.after(den)) {
-            JOptionPane.showMessageDialog(mainPanel, "\"Từ ngày\" phải trước \"Đến ngày\"");
+            HopThoai.loi(this, "\"Từ ngày\" phải trước \"Đến ngày\"");
             return;
         }
+        StringBuilder url = new StringBuilder("/api/su-kien/danh-sach?tuKhoa=").append(Api.e(oTim.getText().trim()));
+        if (tu != null) url.append("&tuNgay=").append(HocSinhUI.isoNgay(tu));
+        if (den != null) url.append("&denNgay=").append(HocSinhUI.isoNgay(den));
+        String ten = Api.e(dieuHuong.tenDangNhap());
 
-        StringBuilder url = new StringBuilder("/api/su-kien/danh-sach?tuKhoa=")
-                .append(ApiClient.encode(txtTuKhoa.getText().trim()));
-        if (tu != null) url.append("&tuNgay=").append(isoDate(tu));
-        if (den != null) url.append("&denNgay=").append(isoDate(den));
-
-        HocSinhUI.chayNen(mainPanel, () -> ApiClient.get(url.toString()).getAsJsonArray(), arr -> {
-            model.setRowCount(0);
-            for (JsonElement el : arr) {
+        Api.chayNen(this, () -> {
+            JsonObject kq = new JsonObject();
+            kq.add("suKien", Api.get(url.toString()));
+            kq.add("dangKy", Api.get("/api/dang-ky/cua-toi?tenDangNhap=" + ten));
+            return kq;
+        }, kq -> {
+            tatCa.clear();
+            for (JsonElement el : Api.arr(kq, "suKien")) tatCa.add(el.getAsJsonObject());
+            cuaToi.clear();
+            for (JsonElement el : Api.arr(kq, "dangKy")) {
                 JsonObject o = el.getAsJsonObject();
-                model.addRow(new Object[]{
-                        HocSinhUI.num(o, "id"),
-                        HocSinhUI.str(o, "maSuKien"),
-                        HocSinhUI.str(o, "tenSuKien"),
-                        HocSinhUI.thoiGian(HocSinhUI.str(o, "thoiGianBatDau")),
-                        HocSinhUI.str(o, "diaDiem"),
-                        HocSinhUI.str(o, "soLuongToiDa"),
-                        HocSinhUI.str(o, "trangThai")
-                });
+                cuaToi.put(Api.n(o, "suKienId"), Api.s(o, "trangThai"));
             }
-            lblTong.setText("Tìm thấy " + arr.size() + " sự kiện");
+            locVaHien();
         });
     }
 
-    private void xemChiTiet() {
-        Object id = HocSinhUI.giaTriDongChon(table, COT_ID);
-        if (id == null) {
-            JOptionPane.showMessageDialog(mainPanel, "Hãy chọn một sự kiện");
-            return;
+    /** Lọc trạng thái ngay trên dữ liệu đã tải (không cần gọi lại API). */
+    private void locVaHien() {
+        String tt = cbTrangThai.getSelectedIndex() <= 0 ? "" : (String) cbTrangThai.getSelectedItem();
+        dangHien.clear();
+        bang.xoaHet();
+        for (JsonObject sk : tatCa) {
+            if (!tt.isEmpty() && !tt.equals(Api.s(sk, "trangThai"))) continue;
+            dangHien.add(sk);
+            long toiDa = Api.n(sk, "soLuongToiDa");
+            bang.themDong(Api.n(sk, "id"),
+                    Api.s(sk, "tenSuKien") + "\n" + Api.s(sk, "maSuKien") + "  |  " + Api.s(sk, "diaDiem"),
+                    HocSinhUI.thoiGian(Api.s(sk, "thoiGianBatDau")),
+                    Api.n(sk, "soDaDangKy") + " / " + (toiDa > 0 ? toiDa : "∞"),
+                    Api.s(sk, "trangThai"),
+                    cuaToi.getOrDefault(Api.n(sk, "id"), ""),
+                    "");
         }
-        HocSinhUI.hienChiTietSuKien(mainPanel, (Long) id, tenDangNhap);
+        lblSoLuong.setText(dangHien.isEmpty() ? "Không tìm thấy sự kiện phù hợp"
+                : "Hiển thị " + dangHien.size() + " / " + tatCa.size() + " sự kiện  •  Nhấp đúp vào một dòng để xem chi tiết");
     }
 
-    /** POST /api/dang-ky/dang-ky. Backend kiểm tra trùng, hết chỗ, sự kiện đã bắt đầu... */
-    private void dangKy() {
-        Object id = HocSinhUI.giaTriDongChon(table, COT_ID);
-        if (id == null) {
-            JOptionPane.showMessageDialog(mainPanel, "Hãy chọn sự kiện muốn đăng ký");
-            return;
-        }
-        String ten = (String) table.getModel().getValueAt(table.convertRowIndexToModel(table.getSelectedRow()), 2);
-        if (JOptionPane.showConfirmDialog(mainPanel, "Đăng ký tham gia \"" + ten + "\"?", "Xác nhận",
-                JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
-            return;
-        }
-
-        JsonObject body = new JsonObject();
-        body.addProperty("suKienId", (Long) id);
-        body.addProperty("tenDangNhap", tenDangNhap);
-        HocSinhUI.chayNen(mainPanel, () -> ApiClient.post("/api/dang-ky/dang-ky", body), kq -> {
-            JOptionPane.showMessageDialog(mainPanel, "Đăng ký thành công!");
-            if (onDaDangKy != null) onDaDangKy.run();
-        });
-    }
-
-    private static String isoDate(Date d) {
-        return d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().toString(); // yyyy-MM-dd
-    }
-
-    public JPanel getMainPanel() {
-        return mainPanel;
+    /** Chỉ hiện nút Đăng ký khi sự kiện còn mở, chưa bắt đầu, chưa đầy và mình chưa giữ chỗ. */
+    private boolean coTheDangKy(JsonObject sk) {
+        String toi = cuaToi.getOrDefault(Api.n(sk, "id"), "");
+        long toiDa = Api.n(sk, "soLuongToiDa");
+        return "Sắp diễn ra".equals(Api.s(sk, "trangThai"))
+                && !HocSinhUI.daBatDau(Api.s(sk, "thoiGianBatDau"))
+                && (toiDa <= 0 || Api.n(sk, "soDaDangKy") < toiDa)
+                && (toi.isEmpty() || "Đã hủy".equals(toi));
     }
 }
