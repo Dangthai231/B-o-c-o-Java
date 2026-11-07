@@ -54,4 +54,20 @@ public class SuKien {
 
     public String getTrangThai() { return trangThai; }
     public void setTrangThai(String trangThai) { this.trangThai = trangThai; }
+
+    // ===== Bổ sung cho Admin: duyệt kế hoạch sự kiện =====
+    private String trangThaiDuyet; // "Chờ duyệt", "Đã duyệt", "Từ chối" (NULL = sự kiện cũ, coi như đã duyệt)
+    @Column(columnDefinition = "TEXT")
+    private String lyDoTuChoi;
+    private String nguoiTao;       // tenDangNhap người lập kế hoạch
+
+    public String getTrangThaiDuyet() { return trangThaiDuyet; }
+    public void setTrangThaiDuyet(String trangThaiDuyet) { this.trangThaiDuyet = trangThaiDuyet; }
+
+    public String getLyDoTuChoi() { return lyDoTuChoi; }
+    public void setLyDoTuChoi(String lyDoTuChoi) { this.lyDoTuChoi = lyDoTuChoi; }
+
+    public String getNguoiTao() { return nguoiTao; }
+    public void setNguoiTao(String nguoiTao) { this.nguoiTao = nguoiTao; }
+
 }

@@ -15,4 +15,9 @@ public interface DangKySuKienRepository extends JpaRepository<DangKySuKien, Long
 
     // Đếm số người đang giữ chỗ (khác trạng thái "Đã hủy")
     long countBySuKienIdAndTrangThaiNot(Long suKienId, String trangThai);
+
+    // Bổ sung cho Admin
+    List<DangKySuKien> findBySuKienId(Long suKienId);
+
+    boolean existsByTenDangNhap(String tenDangNhap);
 }

@@ -218,41 +218,58 @@ public class Login {
             @Override
             protected Void doInBackground() {
                 try {
-                    String jsonBody = String.format("{\"tenDangNhap\":\"%s\",\"matKhau\":\"%s\"}", username, password);
+                    JsonObject body = new JsonObject();
+                    body.addProperty("tenDangNhap", username);
+                    body.addProperty("matKhau", password);
 
                     HttpClient client = HttpClient.newHttpClient();
+
                     HttpRequest request = HttpRequest.newBuilder()
                             .uri(URI.create("http://localhost:8080/api/auth/login"))
-                            .header("Content-Type", "application/json")
-                            .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                            .header("Content-Type", "application/json; charset=UTF-8")
+                            .POST(HttpRequest.BodyPublishers.ofString(body.toString()))
                             .build();
 
-                    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                    HttpResponse<String> response = client.send(
+                            request,
+                            HttpResponse.BodyHandlers.ofString()
+                    );
 
                     SwingUtilities.invokeLater(() -> {
-                        if (response.statusCode() == 200) {
-                            JsonObject jsonResponse = JsonParser.parseString(response.body()).getAsJsonObject();
-                            String vaiTro = jsonResponse.has("vaiTro") ? jsonResponse.get("vaiTro").getAsString() : "CAN_BO";
-                            String user = jsonResponse.has("tenDangNhap") ? jsonResponse.get("tenDangNhap").getAsString() : username;
-                            moTrangChuTheoVaiTro(vaiTro, user);
-                        } else {
+                        try {
+                            int status = response.statusCode();
                             lblThongBaoLoi.setForeground(new Color(211, 47, 47));
-                            lblThongBaoLoi.setText("Sai tài khoản hoặc mật khẩu!");
+
+                            if (status == 200) {
+                                JsonObject result = JsonParser.parseString(
+                                        response.body()
+                                ).getAsJsonObject();
+
+                                String vaiTro = result.get("vaiTro").getAsString();
+                                String user = result.get("tenDangNhap").getAsString();
+
+                                moTrangChuTheoVaiTro(vaiTro, user);
+                            } else if (status == 401) {
+                                lblThongBaoLoi.setText("Sai tài khoản hoặc mật khẩu!");
+                            } else if (status == 403) {
+                                lblThongBaoLoi.setText("Tài khoản đã bị khóa!");
+                            } else if (status == 400) {
+                                lblThongBaoLoi.setText("Dữ liệu đăng nhập không hợp lệ!");
+                            } else {
+                                lblThongBaoLoi.setText("Lỗi máy chủ HTTP " + status);
+                            }
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                            lblThongBaoLoi.setText("Lỗi xử lý phản hồi máy chủ!");
                         }
                     });
+
                 } catch (Exception ex) {
-                    // Fallback khi backend chưa bật: hỗ trợ đăng nhập kiểm thử
+                    ex.printStackTrace();
+
                     SwingUtilities.invokeLater(() -> {
-                        if (username.equalsIgnoreCase("admin") && password.equals("admin123")) {
-                            moTrangChuTheoVaiTro("ADMIN", username);
-                        } else if (username.toLowerCase().startsWith("canbo") && password.equals("canbo123")) {
-                            moTrangChuTheoVaiTro("CAN_BO", username);
-                        } else if (username.toLowerCase().startsWith("hocsinh") && password.equals("hs123")) {
-                            moTrangChuTheoVaiTro("HOC_SINH", username);
-                        } else {
-                            lblThongBaoLoi.setForeground(new Color(211, 47, 47));
-                            lblThongBaoLoi.setText("Không thể kết nối máy chủ (hoặc sai tài khoản)!");
-                        }
+                        lblThongBaoLoi.setForeground(new Color(211, 47, 47));
+                        lblThongBaoLoi.setText("Không thể kết nối máy chủ!");
                     });
                 }
                 return null;
@@ -260,7 +277,6 @@ public class Login {
         };
         worker.execute();
     }
-
     private void moTrangChuTheoVaiTro(String vaiTro, String username) {
         JFrame loginFrame = (JFrame) SwingUtilities.getWindowAncestor(mainPanel);
         if (loginFrame != null) {
@@ -271,7 +287,7 @@ public class Login {
         switch (vaiTro) {
             case "ADMIN":
                 dashboardFrame.setTitle("Dashboard - Quản trị viên");
-                dashboardFrame.setContentPane(new DashboardAdmin().getMainPanel());
+                dashboardFrame.setContentPane(new DashboardAdmin(username).getMainPanel());
                 break;
             case "CAN_BO":
                 dashboardFrame.setTitle("Cán Bộ - Quản lý sự kiện");

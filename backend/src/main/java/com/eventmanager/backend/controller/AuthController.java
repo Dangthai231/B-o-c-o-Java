@@ -30,6 +30,11 @@ public class AuthController {
         if (tkOpt.isPresent()) {
             TaiKhoan tk = tkOpt.get();
             if (tk.getMatKhau().equals(password.trim())) {
+                // [Admin] Tài khoản bị khóa thì không cho đăng nhập
+                if ("BI_KHOA".equals(tk.getTrangThai())) {
+                    return ResponseEntity.status(403).body(Map.of("status", "error",
+                            "message", "Tài khoản đã bị khóa. Vui lòng liên hệ Quản trị viên."));
+                }
                 return ResponseEntity.ok(Map.of(
                         "status", "success",
                         "vaiTro", tk.getVaiTro(),

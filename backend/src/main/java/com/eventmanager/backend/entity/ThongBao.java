@@ -1,6 +1,7 @@
 package com.eventmanager.backend.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 import java.time.LocalDate;
 
 @Entity
@@ -42,4 +43,20 @@ public class ThongBao {
 
     public String getTrangThai() { return trangThai; }
     public void setTrangThai(String trangThai) { this.trangThai = trangThai; }
+
+    // ===== Bổ sung cho Admin: duyệt / đăng / gỡ thông báo =====
+    private String nguoiTao;
+    @Column(columnDefinition = "TEXT")
+    private String lyDoTuChoi;
+    private LocalDateTime ngayDang;
+
+    public String getNguoiTao() { return nguoiTao; }
+    public void setNguoiTao(String nguoiTao) { this.nguoiTao = nguoiTao; }
+
+    public String getLyDoTuChoi() { return lyDoTuChoi; }
+    public void setLyDoTuChoi(String lyDoTuChoi) { this.lyDoTuChoi = lyDoTuChoi; }
+
+    public LocalDateTime getNgayDang() { return ngayDang; }
+    public void setNgayDang(LocalDateTime ngayDang) { this.ngayDang = ngayDang; }
+
 }

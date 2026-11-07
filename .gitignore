@@ -4,3 +4,14 @@ hs_err_pid*
 replay_pid*
 
 ~$*
+
+# Local IDE, credentials and generated files
+.idea/
+**/.idea/
+.env
+.env.*
+*.local.properties
+*.class
+__pycache__/
+
+*.bak
