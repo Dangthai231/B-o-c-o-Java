@@ -72,7 +72,7 @@ public class Quanlytailieusukien {
         tableTaiLieu.getColumnModel().getColumn(4).setPreferredWidth(130);
 
         JScrollPane scrollPane = new JScrollPane(tableTaiLieu);
-        scrollPane.getViewport().setBackground(new Color(150, 155, 160));
+        scrollPane.getViewport().setBackground(Color.WHITE);
         scrollPane.setBorder(new LineBorder(new Color(180, 180, 180), 1));
         mainPanel.add(scrollPane, BorderLayout.CENTER);
 

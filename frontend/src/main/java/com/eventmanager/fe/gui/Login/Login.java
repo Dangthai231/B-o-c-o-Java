@@ -302,7 +302,7 @@ public class Login {
                 return;
         }
 
-        dashboardFrame.setSize(1150, 720);
+        dashboardFrame.setSize(1220, 740);
         dashboardFrame.setLocationRelativeTo(null);
         dashboardFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         dashboardFrame.setVisible(true);

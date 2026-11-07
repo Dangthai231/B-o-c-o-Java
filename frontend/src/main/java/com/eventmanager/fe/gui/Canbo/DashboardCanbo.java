@@ -1,39 +1,45 @@
 package com.eventmanager.fe.gui.Canbo;
 
 import Canbo.Trangchu;
+import com.eventmanager.fe.gui.Admin.common.*;
 import com.eventmanager.fe.gui.Login.Login;
 
 import javax.swing.*;
-import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.RoundRectangle2D;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
+/**
+ * GIAO DIỆN CHÍNH CÁN BỘ PHỤ TRÁCH SỰ KIỆN:
+ * Thiết kế chuẩn hiện đại, đồng bộ 100% màu sắc và vector icon với DashboardAdmin:
+ *
+ *  ┌──────────────┬──────────────────────────────────────────────┐
+ *  │  LOGO        │  ☰                    [Tìm kiếm]  🔔  CB canbo01 │  <- thanh trên trắng
+ *  │  Trang chủ   ├──────────────────────────────────────────────┤
+ *  │  Báo cáo     │                                              │
+ *  │  Tài liệu    │        VÙNG NỘI DUNG (CardLayout)            │
+ *  │  Người t.gia │                                              │
+ *  │  Thông báo   │                                              │
+ *  │  Đăng xuất   │                                              │
+ *  └──────────────┴──────────────────────────────────────────────┘
+ */
 public class DashboardCanbo {
+
+    public static final String TRANG_CHU = "trangchu";
+    public static final String BAO_CAO = "baocao";
+    public static final String TAI_LIEU = "tailieu";
+    public static final String NGUOI_THAM_GIA = "nguoithamgia";
+    public static final String THONG_BAO = "thongbao";
+
+    private final String currentUsername;
     private JPanel mainPanel;
     private JPanel sidebar;
-    private JPanel contentPanel;
-    private JLabel lblUser;
-
-    private List<JPanel> navItems;
-    private JPanel activeNavItem;
-    private String currentUsername = "canbo01";
-
-    // Color Palette — Dark Navy Theme (matching screenshot)
-    private static final Color SIDEBAR_BG = new Color(30, 42, 74);       // #1E2A4A
-    private static final Color SIDEBAR_DARKER = new Color(22, 32, 58);   // #16203A
-    private static final Color NAV_ACTIVE_BG = new Color(33, 150, 243);  // #2196F3
-    private static final Color NAV_HOVER_BG = new Color(40, 55, 95);     // subtle hover
-    private static final Color HEADER_BG = new Color(30, 42, 74);        // same as sidebar
-    private static final Color CONTENT_BG = new Color(240, 242, 245);    // #F0F2F5
-    private static final Color TEXT_WHITE = new Color(255, 255, 255);
-    private static final Color TEXT_MUTED = new Color(180, 195, 220);
-    private static final Color ACCENT_BLUE = new Color(33, 150, 243);
+    private final CardLayout cardLayout = new CardLayout();
+    private final JPanel noiDung = new JPanel(cardLayout);
+    private final Map<String, MucMenu> cacMuc = new LinkedHashMap<>();
 
     // Các trang con
     private Trangchu trangchu;
@@ -42,350 +48,308 @@ public class DashboardCanbo {
     private Quanlynguoithamgia quanlynguoithamgia;
     private Quanlythongbao quanlythongbao;
 
-    // Navigation labels
-    private static final String[] NAV_LABELS = {
-            "Trang chủ",
-            "Lập báo cáo thống kê",
-            "Quản lý tài liệu sự kiện",
-            "Quản lý người tham gia",
-            "Quản lý thông báo"
-    };
-    private static final String[] NAV_ICONS = {"🏠", "📊", "📁", "👥", "🔔"};
-
     public DashboardCanbo() {
         this("canbo01");
     }
 
     public DashboardCanbo(String username) {
-        if (username != null && !username.trim().isEmpty()) {
-            this.currentUsername = username.trim();
-        }
-        initUI();
+        this.currentUsername = (username == null || username.isBlank()) ? "canbo01" : username.trim();
+        initComponents();
     }
 
-    private void initUI() {
-        mainPanel = new JPanel(new BorderLayout(0, 0));
-        mainPanel.setPreferredSize(new Dimension(1200, 750));
+    private void initComponents() {
+        mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setPreferredSize(new Dimension(1220, 740));
 
-        // ================= TOP HEADER BAR =================
-        JPanel headerBar = createHeaderBar();
-        mainPanel.add(headerBar, BorderLayout.NORTH);
-
-        // ================= LEFT SIDEBAR =================
-        sidebar = createSidebar();
-        mainPanel.add(sidebar, BorderLayout.WEST);
-
-        // ================= CONTENT PANEL =================
-        contentPanel = new JPanel(new BorderLayout());
-        contentPanel.setBackground(CONTENT_BG);
-        mainPanel.add(contentPanel, BorderLayout.CENTER);
-
-        // Khởi tạo các trang con
-        trangchu = new Trangchu();
+        // 1. Khởi tạo các trang con
+        trangchu = new Trangchu(this::moTrang);
         lapbaocaothongke = new Lapbaocaothongke();
         quanlytailieusukien = new Quanlytailieusukien();
         quanlynguoithamgia = new Quanlynguoithamgia();
         quanlythongbao = new Quanlythongbao();
 
-        // Mặc định hiển thị Trang chủ
-        showPanel(trangchu.getMainPanel(), navItems.get(0));
-    }
+        noiDung.setBackground(Theme.BG);
+        noiDung.add(trangchu.getMainPanel(), TRANG_CHU);
+        noiDung.add(lapbaocaothongke.getMainPanel(), BAO_CAO);
+        noiDung.add(quanlytailieusukien.getMainPanel(), TAI_LIEU);
+        noiDung.add(quanlynguoithamgia.getMainPanel(), NGUOI_THAM_GIA);
+        noiDung.add(quanlythongbao.getMainPanel(), THONG_BAO);
 
-    // ============ TOP HEADER BAR ============
-    private JPanel createHeaderBar() {
-        JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(HEADER_BG);
-        header.setPreferredSize(new Dimension(0, 52));
-        header.setBorder(new EmptyBorder(0, 16, 0, 20));
+        // 2. Ghép khung: Cột trái full-height Sidebar + Vùng phải (Thanh trên trắng + Nội dung)
+        mainPanel.add(taoSidebar(), BorderLayout.WEST);
 
-        // Left: Hamburger menu icon
-        JLabel lblMenu = new JLabel("  ☰  ");
-        lblMenu.setFont(new Font("Segoe UI", Font.PLAIN, 20));
-        lblMenu.setForeground(TEXT_WHITE);
-        lblMenu.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        header.add(lblMenu, BorderLayout.WEST);
+        JPanel phai = new JPanel(new BorderLayout());
+        phai.add(taoThanhTren(), BorderLayout.NORTH);
+        phai.add(noiDung, BorderLayout.CENTER);
+        mainPanel.add(phai, BorderLayout.CENTER);
 
-        // Center: Search Bar
-        JPanel searchWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 10));
-        searchWrapper.setOpaque(false);
+        // Mặc định mở Trang chủ
+        moTrang(TRANG_CHU);
 
-        JPanel searchBox = new JPanel(new BorderLayout()) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(Color.WHITE);
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 20, 20);
-                g2.dispose();
-            }
-        };
-        searchBox.setOpaque(false);
-        searchBox.setPreferredSize(new Dimension(260, 32));
-        searchBox.setBorder(new EmptyBorder(0, 12, 0, 12));
-
-        JLabel lblSearch = new JLabel("🔍 ");
-        lblSearch.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        lblSearch.setForeground(new Color(150, 150, 150));
-        searchBox.add(lblSearch, BorderLayout.WEST);
-
-        JTextField txtSearch = new JTextField("Tìm tài khoản...");
-        txtSearch.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        txtSearch.setForeground(new Color(150, 150, 150));
-        txtSearch.setBorder(null);
-        txtSearch.setOpaque(false);
-        txtSearch.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent e) {
-                if (txtSearch.getText().equals("Tìm tài khoản...")) {
-                    txtSearch.setText("");
-                    txtSearch.setForeground(Color.BLACK);
-                }
-            }
-            public void focusLost(java.awt.event.FocusEvent e) {
-                if (txtSearch.getText().isEmpty()) {
-                    txtSearch.setText("Tìm tài khoản...");
-                    txtSearch.setForeground(new Color(150, 150, 150));
+        // Tự động nới rộng cửa sổ nếu màn hình đủ lớn
+        mainPanel.addHierarchyListener(e -> {
+            if ((e.getChangeFlags() & java.awt.event.HierarchyEvent.SHOWING_CHANGED) != 0 && mainPanel.isShowing()) {
+                Window w = SwingUtilities.getWindowAncestor(mainPanel);
+                Rectangle manHinh = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+                if (w != null && w.getWidth() < 1280 && manHinh.width >= 1300 && manHinh.height >= 800) {
+                    w.setSize(1280, 780);
+                    w.setLocationRelativeTo(null);
                 }
             }
         });
-        searchBox.add(txtSearch, BorderLayout.CENTER);
-        searchWrapper.add(searchBox);
-        header.add(searchWrapper, BorderLayout.CENTER);
-
-        // Right: Notification + User avatar
-        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 10));
-        rightPanel.setOpaque(false);
-
-        // Notification bell
-        JLabel lblBell = new JLabel("🔔");
-        lblBell.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-        lblBell.setForeground(TEXT_WHITE);
-        lblBell.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        rightPanel.add(lblBell);
-
-        // User avatar circle
-        String initials = currentUsername.length() >= 2
-                ? currentUsername.substring(0, 2).toUpperCase()
-                : currentUsername.toUpperCase();
-        JPanel avatarCircle = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(ACCENT_BLUE);
-                g2.fillOval(0, 0, 32, 32);
-                g2.setColor(Color.WHITE);
-                g2.setFont(new Font("Segoe UI", Font.BOLD, 12));
-                FontMetrics fm = g2.getFontMetrics();
-                int x = (32 - fm.stringWidth(initials)) / 2;
-                int y = (32 + fm.getAscent() - fm.getDescent()) / 2;
-                g2.drawString(initials, x, y);
-                g2.dispose();
-            }
-        };
-        avatarCircle.setOpaque(false);
-        avatarCircle.setPreferredSize(new Dimension(32, 32));
-        rightPanel.add(avatarCircle);
-
-        JLabel lblUsername = new JLabel(currentUsername + " ▾");
-        lblUsername.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        lblUsername.setForeground(TEXT_WHITE);
-        lblUsername.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        rightPanel.add(lblUsername);
-
-        header.add(rightPanel, BorderLayout.EAST);
-
-        return header;
     }
 
-    // ============ LEFT SIDEBAR ============
-    private JPanel createSidebar() {
-        JPanel sb = new JPanel();
-        sb.setLayout(new BoxLayout(sb, BoxLayout.Y_AXIS));
-        sb.setBackground(SIDEBAR_BG);
-        sb.setPreferredSize(new Dimension(220, 0));
-        sb.setBorder(new EmptyBorder(0, 0, 0, 0));
+    // ======================= THANH BÊN TRÁI (SIDEBAR) =======================
+    private JPanel taoSidebar() {
+        sidebar = new JPanel(new BorderLayout());
+        sidebar.setBackground(Theme.SIDEBAR);
+        sidebar.setPreferredSize(new Dimension(228, 0));
 
-        // Logo & Title section
-        JPanel logoPanel = new JPanel();
-        logoPanel.setLayout(new BoxLayout(logoPanel, BoxLayout.Y_AXIS));
-        logoPanel.setBackground(SIDEBAR_DARKER);
-        logoPanel.setBorder(new EmptyBorder(18, 16, 18, 16));
-        logoPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 72));
+        // 1. Logo trường & khoa
+        JPanel logo = new JPanel(new BorderLayout(10, 0));
+        logo.setOpaque(false);
+        logo.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 1, 0, Theme.SIDEBAR_LINE),
+                new EmptyBorder(18, 14, 18, 8)
+        ));
+        logo.add(new JLabel(Icons.of(Icons.CAP, 28, Color.WHITE)), BorderLayout.WEST);
 
-        JLabel lblSystemName = new JLabel("HỆ THỐNG QUẢN LÝ SỰ KIỆN");
-        lblSystemName.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        lblSystemName.setForeground(TEXT_WHITE);
-        lblSystemName.setAlignmentX(Component.LEFT_ALIGNMENT);
-        logoPanel.add(lblSystemName);
-        logoPanel.add(Box.createVerticalStrut(3));
+        JPanel chuLogo = new JPanel();
+        chuLogo.setOpaque(false);
+        chuLogo.setLayout(new BoxLayout(chuLogo, BoxLayout.Y_AXIS));
+        chuLogo.add(UI.nhan("HỆ THỐNG QUẢN LÝ SỰ KIỆN", Theme.font(Font.BOLD, 11), Color.WHITE));
+        chuLogo.add(Box.createVerticalStrut(3));
+        chuLogo.add(UI.nhan("BCH LCĐ CNS - ĐH Điện lực", Theme.font(Font.PLAIN, 10), Theme.SIDEBAR_TEXT));
+        logo.add(chuLogo, BorderLayout.CENTER);
+        sidebar.add(logo, BorderLayout.NORTH);
 
-        JLabel lblSubtitle = new JLabel("BCH LCĐ CNS - ĐH Điện lực");
-        lblSubtitle.setFont(new Font("Segoe UI", Font.PLAIN, 10));
-        lblSubtitle.setForeground(TEXT_MUTED);
-        lblSubtitle.setAlignmentX(Component.LEFT_ALIGNMENT);
-        logoPanel.add(lblSubtitle);
+        // 2. Danh sách Menu
+        JPanel menu = new JPanel();
+        menu.setOpaque(false);
+        menu.setLayout(new BoxLayout(menu, BoxLayout.Y_AXIS));
+        menu.setBorder(new EmptyBorder(14, 12, 12, 12));
 
-        sb.add(logoPanel);
-        sb.add(Box.createVerticalStrut(12));
+        themMuc(menu, TRANG_CHU, "Trang chủ", Icons.HOME);
+        themMuc(menu, BAO_CAO, "Lập báo cáo và thống kê", Icons.CHART);
+        themMuc(menu, TAI_LIEU, "Quản lý tài liệu sự kiện", Icons.FILE);
+        themMuc(menu, NGUOI_THAM_GIA, "Quản lý người tham gia", Icons.USERS);
+        themMuc(menu, THONG_BAO, "Quản lý thông báo", Icons.BELL);
 
-        // Navigation Items
-        navItems = new ArrayList<>();
-        for (int i = 0; i < NAV_LABELS.length; i++) {
-            JPanel navItem = createNavItem(NAV_ICONS[i], NAV_LABELS[i], i);
-            sb.add(navItem);
-            sb.add(Box.createVerticalStrut(2));
-        }
+        sidebar.add(menu, BorderLayout.CENTER);
 
-        // Spacer to push footer to bottom
-        sb.add(Box.createVerticalGlue());
+        // 3. Chân Sidebar: Nút Đăng xuất + Thông tin ĐH Điện lực
+        JPanel chan = new JPanel(new BorderLayout(0, 10));
+        chan.setOpaque(false);
+        chan.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(1, 0, 0, 0, Theme.SIDEBAR_LINE),
+                new EmptyBorder(10, 12, 14, 12)
+        ));
 
-        // Logout button (styled differently)
-        JPanel logoutItem = createNavItem("🚪", "Đăng xuất", -1);
-        logoutItem.addMouseListener(new MouseAdapter() {
+        // Nút Đăng xuất
+        MucMenu btnDangXuat = new MucMenu("Đăng xuất", Icons.LOGOUT, this::dangXuat);
+        chan.add(btnDangXuat, BorderLayout.NORTH);
+
+        // Thông tin bản quyền
+        JPanel chuChan = new JPanel(new BorderLayout(8, 0));
+        chuChan.setOpaque(false);
+        chuChan.add(new JLabel(Icons.of(Icons.CAP, 20, Theme.SIDEBAR_TEXT)), BorderLayout.WEST);
+
+        JPanel dongChu = new JPanel();
+        dongChu.setOpaque(false);
+        dongChu.setLayout(new BoxLayout(dongChu, BoxLayout.Y_AXIS));
+        dongChu.add(UI.nhan("Đại học Điện lực", Theme.font(Font.PLAIN, 11), Color.WHITE));
+        dongChu.add(UI.nhan("Kết nối tri thức - Kiến tạo tương lai", Theme.font(Font.PLAIN, 9), Theme.SIDEBAR_TEXT));
+        chuChan.add(dongChu, BorderLayout.CENTER);
+
+        chan.add(chuChan, BorderLayout.SOUTH);
+        sidebar.add(chan, BorderLayout.SOUTH);
+
+        return sidebar;
+    }
+
+    private void themMuc(JPanel menu, String ma, String ten, String icon) {
+        MucMenu m = new MucMenu(ten, icon, () -> moTrang(ma));
+        cacMuc.put(ma, m);
+        menu.add(m);
+        menu.add(Box.createVerticalStrut(4));
+    }
+
+    // ======================= THANH TRÊN CÙNG (TOP HEADER) =======================
+    private JPanel taoThanhTren() {
+        JPanel tren = new JPanel(new BorderLayout());
+        tren.setBackground(Color.WHITE);
+        tren.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 1, 0, Theme.BORDER),
+                new EmptyBorder(10, 18, 10, 22)
+        ));
+
+        // ☰ Nút ẩn / hiện thanh bên trái
+        JLabel hamburger = new JLabel(Icons.of(Icons.MENU, 22, Theme.TEXT));
+        hamburger.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        hamburger.setToolTipText("Ẩn / hiện menu bên trái");
+        hamburger.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                int confirm = JOptionPane.showConfirmDialog(
-                        mainPanel,
-                        "Bạn có chắc muốn đăng xuất khỏi hệ thống?",
-                        "Xác nhận đăng xuất",
-                        JOptionPane.YES_NO_OPTION
-                );
-                if (confirm == JOptionPane.YES_OPTION) {
-                    Window win = SwingUtilities.getWindowAncestor(mainPanel);
-                    if (win != null) {
-                        win.dispose();
-                    }
-                    Login.main(new String[]{});
-                }
+                sidebar.setVisible(!sidebar.isVisible());
+                mainPanel.revalidate();
             }
         });
-        sb.add(logoutItem);
-        sb.add(Box.createVerticalStrut(8));
+        tren.add(hamburger, BorderLayout.WEST);
 
-        // Footer
-        JPanel footerPanel = new JPanel();
-        footerPanel.setLayout(new BoxLayout(footerPanel, BoxLayout.Y_AXIS));
-        footerPanel.setBackground(SIDEBAR_DARKER);
-        footerPanel.setBorder(new EmptyBorder(12, 16, 14, 16));
-        footerPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 56));
+        // Ô tìm kiếm nhanh bo tròn
+        UI.TextFieldDep timNhanh = UI.oTimKiem("Tìm kiếm sự kiện, người tham gia...");
+        timNhanh.setPreferredSize(new Dimension(280, 36));
 
-        JLabel lblFooter1 = new JLabel("Đại học Điện lực");
-        lblFooter1.setFont(new Font("Segoe UI", Font.BOLD, 11));
-        lblFooter1.setForeground(TEXT_WHITE);
-        lblFooter1.setAlignmentX(Component.LEFT_ALIGNMENT);
-        footerPanel.add(lblFooter1);
-
-        JLabel lblFooter2 = new JLabel("Kết nối tri thức - Kiến tạo tương lai");
-        lblFooter2.setFont(new Font("Segoe UI", Font.ITALIC, 9));
-        lblFooter2.setForeground(TEXT_MUTED);
-        lblFooter2.setAlignmentX(Component.LEFT_ALIGNMENT);
-        footerPanel.add(lblFooter2);
-
-        sb.add(footerPanel);
-
-        return sb;
-    }
-
-    // ============ SINGLE NAV ITEM ============
-    private JPanel createNavItem(String icon, String text, int index) {
-        JPanel item = new JPanel(new BorderLayout()) {
+        // Chuông thông báo
+        JPanel chuong = new JPanel(null) {
             @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(getBackground());
-                g2.fill(new RoundRectangle2D.Double(6, 0, getWidth() - 12, getHeight(), 10, 10));
-                g2.dispose();
+            public Dimension getPreferredSize() {
+                return new Dimension(36, 36);
             }
         };
-        item.setOpaque(false);
-        item.setBackground(SIDEBAR_BG); // default transparent-like
-        item.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
-        item.setPreferredSize(new Dimension(220, 40));
-        item.setBorder(new EmptyBorder(8, 20, 8, 16));
-        item.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        chuong.setOpaque(false);
+        JLabel iconChuong = new JLabel(Icons.of(Icons.BELL, 22, Theme.TEXT));
+        iconChuong.setBounds(6, 7, 24, 24);
 
-        JLabel lblIcon = new JLabel(icon + "  ");
-        lblIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
-        lblIcon.setForeground(TEXT_WHITE);
-        item.add(lblIcon, BorderLayout.WEST);
-
-        JLabel lblText = new JLabel(text);
-        lblText.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        lblText.setForeground(TEXT_WHITE);
-        item.add(lblText, BorderLayout.CENTER);
-
-        if (index >= 0) {
-            navItems.add(item);
-        }
-
-        // Hover effect
-        item.addMouseListener(new MouseAdapter() {
+        JLabel soChuong = new JLabel("3", SwingConstants.CENTER) {
             @Override
-            public void mouseEntered(MouseEvent e) {
-                if (item != activeNavItem) {
-                    item.setBackground(NAV_HOVER_BG);
-                    item.repaint();
-                }
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = Theme.muot(g);
+                g2.setColor(Theme.DANGER);
+                g2.fillOval(0, 0, getWidth(), getHeight());
+                g2.dispose();
+                super.paintComponent(g);
             }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                if (item != activeNavItem) {
-                    item.setBackground(SIDEBAR_BG);
-                    item.repaint();
-                }
-            }
-
+        };
+        soChuong.setFont(Theme.font(Font.BOLD, 9));
+        soChuong.setForeground(Color.WHITE);
+        soChuong.setBounds(19, 2, 16, 16);
+        chuong.add(soChuong);
+        chuong.add(iconChuong);
+        chuong.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        chuong.setToolTipText("Thông báo hệ thống");
+        chuong.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (index < 0) return; // logout handled separately
-                switch (index) {
-                    case 0 -> showPanel(trangchu.getMainPanel(), item);
-                    case 1 -> showPanel(lapbaocaothongke.getMainPanel(), item);
-                    case 2 -> showPanel(quanlytailieusukien.getMainPanel(), item);
-                    case 3 -> showPanel(quanlynguoithamgia.getMainPanel(), item);
-                    case 4 -> showPanel(quanlythongbao.getMainPanel(), item);
-                }
+                moTrang(THONG_BAO);
             }
         });
 
-        return item;
+        // Avatar + Tên cán bộ + Menu xổ xuống
+        String initials = UI.vietTat(currentUsername);
+        if (initials.isEmpty()) initials = "CB";
+
+        JLabel lblAvatar = new JLabel(currentUsername, UI.avatar(initials, 34, Theme.SIDEBAR), SwingConstants.LEFT);
+        lblAvatar.setFont(Theme.BODY_BOLD);
+        lblAvatar.setForeground(Theme.TEXT);
+        lblAvatar.setIconTextGap(10);
+
+        JLabel muiTen = new JLabel(Icons.of(Icons.CHEVRON_DOWN, 16, Theme.TEXT_2));
+        JPanel khoiTk = UI.hang(8, lblAvatar, muiTen);
+        khoiTk.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        JPopupMenu popup = new JPopupMenu();
+        JMenuItem miDangXuat = new JMenuItem("Đăng xuất", Icons.of(Icons.LOGOUT, 16, Theme.DANGER));
+        miDangXuat.setFont(Theme.BODY);
+        miDangXuat.setBorder(new EmptyBorder(8, 12, 8, 24));
+        miDangXuat.setBackground(Color.WHITE);
+        miDangXuat.addActionListener(e -> dangXuat());
+        popup.add(miDangXuat);
+
+        khoiTk.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                popup.show(khoiTk, 0, khoiTk.getHeight() + 6);
+            }
+        });
+
+        JPanel phai = UI.hangPhai(16, timNhanh, chuong, khoiTk);
+        tren.add(phai, BorderLayout.EAST);
+        return tren;
     }
 
-    // ============ SWITCH CONTENT ============
-    private void showPanel(JPanel panel, JPanel activeItem) {
-        // Reset all nav items
-        if (navItems != null) {
-            for (JPanel nav : navItems) {
-                nav.setBackground(SIDEBAR_BG);
-                nav.repaint();
-            }
+    private void dangXuat() {
+        if (HopThoai.xacNhan(mainPanel, "Đăng xuất", "Bạn có chắc muốn đăng xuất khỏi hệ thống?",
+                "Đăng xuất", UI.Kieu.NGUY_HIEM)) {
+            Window win = SwingUtilities.getWindowAncestor(mainPanel);
+            if (win != null) win.dispose();
+            Login.main(new String[]{});
         }
+    }
 
-        // Highlight active
-        activeNavItem = activeItem;
-        if (activeItem != null) {
-            activeItem.setBackground(NAV_ACTIVE_BG);
-            activeItem.repaint();
+    // ======================= ĐIỀU HƯỚNG TỚI TRANG =======================
+    public void moTrang(String ma) {
+        cacMuc.forEach((k, m) -> m.setChon(k.equals(ma)));
+        cardLayout.show(noiDung, ma);
+
+        if (TRANG_CHU.equals(ma)) {
+            trangchu.taiLai();
         }
-
-        // Swap content
-        contentPanel.removeAll();
-        contentPanel.add(panel, BorderLayout.CENTER);
-        contentPanel.revalidate();
-        contentPanel.repaint();
+        mainPanel.revalidate();
+        mainPanel.repaint();
     }
 
     public JPanel getMainPanel() {
         return mainPanel;
     }
 
-    private void $$$setupUI$$$() {
+    public static void main(String[] args) {
+        // Mở màn hình Login chuẩn
+        Login.main(args);
     }
 
-    public static void main(String[] args) {
-        // Bắt buộc người dùng phải qua màn hình Đăng nhập trước
-        Login.main(args);
+    /** Một mục trên menu bên trái: bo góc 10px, đổi màu khi hover/chọn */
+    private static class MucMenu extends UI.RoundPanel {
+        private final JLabel lbl;
+        private final String icon;
+        private boolean chon;
+        private boolean hover;
+
+        MucMenu(String ten, String icon, Runnable onClick) {
+            super(new BorderLayout(), 10, Theme.SIDEBAR, null);
+            this.icon = icon;
+            lbl = new JLabel(ten, Icons.of(icon, 18, Theme.SIDEBAR_TEXT), SwingConstants.LEFT);
+            lbl.setFont(Theme.font(Font.PLAIN, 13));
+            lbl.setForeground(Theme.SIDEBAR_TEXT);
+            lbl.setIconTextGap(12);
+            lbl.setBorder(new EmptyBorder(10, 12, 10, 10));
+            add(lbl);
+
+            setMaximumSize(new Dimension(Integer.MAX_VALUE, 42));
+            setAlignmentX(Component.LEFT_ALIGNMENT);
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    onClick.run();
+                }
+
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    hover = true;
+                    veLai();
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    hover = false;
+                    veLai();
+                }
+            });
+        }
+
+        void setChon(boolean c) {
+            chon = c;
+            veLai();
+        }
+
+        private void veLai() {
+            setNen(chon ? Theme.SIDEBAR_ACTIVE : hover ? Theme.SIDEBAR_HOVER : Theme.SIDEBAR);
+            Color mau = chon ? Color.WHITE : Theme.SIDEBAR_TEXT;
+            lbl.setForeground(mau);
+            lbl.setFont(Theme.font(chon ? Font.BOLD : Font.PLAIN, 13));
+            lbl.setIcon(Icons.of(icon, 18, mau));
+        }
     }
 }
