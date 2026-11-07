@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.eventmanager.fe.gui.HocSinh.SuKienCuaToi">
+  <grid id="1ad27" layout-manager="BorderLayout" hgap="0" vgap="18">
+    <constraints>
+      <xy x="20" y="20" width="1000" height="640"/>
+    </constraints>
+    <properties>
+      <background color="-788999"/>
+    </properties>
+    <border type="empty">
+      <size top="22" left="26" bottom="22" right="26"/>
+    </border>
+    <children>
+      <grid id="1ad02" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
+        <constraints border-constraint="North"/>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <component id="1acb8" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <font size="24" style="1"/>
+              <foreground color="-15456181"/>
+              <text value="Sự kiện của tôi"/>
+            </properties>
+          </component>
+          <component id="1acdd" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <foreground color="-8746850"/>
+              <text value="Các sự kiện bạn đã đăng ký, trạng thái tham gia và hủy đăng ký"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <grid id="1ac93" layout-manager="BorderLayout" hgap="18" vgap="18">
+        <constraints border-constraint="Center"/>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <grid id="1ac6e" layout-manager="GridLayoutManager" row-count="1" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints border-constraint="North"/>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <grid id="1aafc" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="14" left="14" bottom="14" right="14"/>
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <background color="-1"/>
+                </properties>
+                <border type="none"/>
+                <children>
+                  <component id="1aab2" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <foreground color="-15456181"/>
+                      <text value="Tổng lượt đăng ký"/>
+                    </properties>
+                  </component>
+                  <component id="1aad7" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <font size="24" style="1"/>
+                      <foreground color="-15456181"/>
+                      <text value="0"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+              <grid id="1ab6b" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="14" left="14" bottom="14" right="14"/>
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <background color="-1"/>
+                </properties>
+                <border type="none"/>
+                <children>
+                  <component id="1ab21" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <foreground color="-15456181"/>
+                      <text value="Sắp tham gia"/>
+                    </properties>
+                  </component>
+                  <component id="1ab46" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <font size="24" style="1"/>
+                      <foreground color="-15456181"/>
+                      <text value="0"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+              <grid id="1abda" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="14" left="14" bottom="14" right="14"/>
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <background color="-1"/>
+                </properties>
+                <border type="none"/>
+                <children>
+                  <component id="1ab90" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <foreground color="-15456181"/>
+                      <text value="Đã tham gia"/>
+                    </properties>
+                  </component>
+                  <component id="1abb5" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <font size="24" style="1"/>
+                      <foreground color="-15456181"/>
+                      <text value="0"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+              <grid id="1ac49" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="14" left="14" bottom="14" right="14"/>
+                <constraints>
+                  <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <background color="-1"/>
+                </properties>
+                <border type="none"/>
+                <children>
+                  <component id="1abff" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <foreground color="-15456181"/>
+                      <text value="Vắng / Đã hủy"/>
+                    </properties>
+                  </component>
+                  <component id="1ac24" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <font size="24" style="1"/>
+                      <foreground color="-15456181"/>
+                      <text value="0"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+            </children>
+          </grid>
+          <grid id="1aa8d" layout-manager="BorderLayout" hgap="12" vgap="12">
+            <constraints border-constraint="Center"/>
+            <properties>
+              <background color="-1"/>
+            </properties>
+            <border type="line" title="Sự kiện | Bắt đầu | Ngày đăng ký | Trạng thái | Thao tác (Chi tiết, Đánh giá, Hủy)"/>
+            <children>
+              <grid id="1a9f9" layout-manager="GridLayoutManager" row-count="1" column-count="6" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints border-constraint="North"/>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="1a91b" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <font size="13" style="1"/>
+                      <foreground color="-15374888"/>
+                      <text value="Tất cả"/>
+                    </properties>
+                  </component>
+                  <component id="1a940" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <font size="13" style="1"/>
+                      <foreground color="-15456181"/>
+                      <text value="Sắp tới"/>
+                    </properties>
+                  </component>
+                  <component id="1a965" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <font size="13" style="1"/>
+                      <foreground color="-15456181"/>
+                      <text value="Đã tham gia"/>
+                    </properties>
+                  </component>
+                  <component id="1a98a" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <font size="13" style="1"/>
+                      <foreground color="-15456181"/>
+                      <text value="Vắng / Đã hủy"/>
+                    </properties>
+                  </component>
+                  <hspacer id="1a9af">
+                    <constraints>
+                      <grid row="0" column="4" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                  </hspacer>
+                  <component id="1a9d4" class="javax.swing.JButton">
+                    <constraints>
+                      <grid row="0" column="5" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <background color="-15374888"/>
+                      <font size="13" style="1"/>
+                      <foreground color="-1"/>
+                      <text value="Tìm thêm sự kiện"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+              <scrollpane id="1aa1e">
+                <constraints border-constraint="Center"/>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="1aa43" class="javax.swing.JTable">
+                    <constraints/>
+                    <properties/>
+                  </component>
+                </children>
+              </scrollpane>
+              <component id="1aa68" class="javax.swing.JLabel">
+                <constraints border-constraint="South"/>
+                <properties>
+                  <foreground color="-8746850"/>
+                  <text value="Hiển thị 5 / 5 lượt đăng ký"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+        </children>
+      </grid>
+    </children>
+  </grid>
+</form>

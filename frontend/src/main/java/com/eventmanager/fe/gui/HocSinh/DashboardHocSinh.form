@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.eventmanager.fe.gui.HocSinh.DashboardHocSinh">
+  <grid id="1a2e4" layout-manager="BorderLayout" hgap="0" vgap="0">
+    <constraints>
+      <xy x="20" y="20" width="1220" height="740"/>
+    </constraints>
+    <properties>
+      <background color="-788999"/>
+    </properties>
+    <border type="none"/>
+    <children>
+      <grid id="1a197" layout-manager="GridLayoutManager" row-count="10" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="14" left="14" bottom="14" right="14"/>
+        <constraints border-constraint="West"/>
+        <properties>
+          <background color="-16045220"/>
+        </properties>
+        <border type="none"/>
+        <children>
+          <component id="1a025" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <font size="11" style="1"/>
+              <foreground color="-1"/>
+              <text value="HỆ THỐNG QUẢN LÝ SỰ KIỆN"/>
+            </properties>
+          </component>
+          <component id="1a04a" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <font size="10" style="0"/>
+              <foreground color="-2760462"/>
+              <text value="Cổng thông tin Sinh viên"/>
+            </properties>
+          </component>
+          <component id="1a06f" class="javax.swing.JButton">
+            <constraints>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-16045220"/>
+              <foreground color="-2760462"/>
+              <text value="Trang chủ"/>
+            </properties>
+          </component>
+          <component id="1a094" class="javax.swing.JButton">
+            <constraints>
+              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-16045220"/>
+              <foreground color="-2760462"/>
+              <text value="Tra cứu sự kiện"/>
+            </properties>
+          </component>
+          <component id="1a0b9" class="javax.swing.JButton">
+            <constraints>
+              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-16045220"/>
+              <foreground color="-2760462"/>
+              <text value="Sự kiện của tôi"/>
+            </properties>
+          </component>
+          <component id="1a0de" class="javax.swing.JButton">
+            <constraints>
+              <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-16045220"/>
+              <foreground color="-2760462"/>
+              <text value="Đánh giá và phản hồi"/>
+            </properties>
+          </component>
+          <component id="1a103" class="javax.swing.JButton">
+            <constraints>
+              <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-16045220"/>
+              <foreground color="-2760462"/>
+              <text value="Thông tin cá nhân"/>
+            </properties>
+          </component>
+          <vspacer id="1a128">
+            <constraints>
+              <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+          </vspacer>
+          <component id="1a14d" class="javax.swing.JButton">
+            <constraints>
+              <grid row="8" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-16045220"/>
+              <foreground color="-2760462"/>
+              <text value="Đăng xuất"/>
+            </properties>
+          </component>
+          <component id="1a172" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <font size="10" style="0"/>
+              <foreground color="-2760462"/>
+              <text value="Đại học Điện lực - LCĐ CNTT"/>
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <grid id="1a2bf" layout-manager="BorderLayout" hgap="0" vgap="0">
+        <constraints border-constraint="Center"/>
+        <properties/>
+        <border type="none"/>
+        <children>
+          <grid id="1a250" layout-manager="GridLayoutManager" row-count="1" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="10" left="10" bottom="10" right="10"/>
+            <constraints border-constraint="North"/>
+            <properties>
+              <background color="-1"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="1a1bc" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <font size="18" style="0"/>
+                  <foreground color="-15456181"/>
+                  <text value="☰"/>
+                </properties>
+              </component>
+              <hspacer id="1a1e1">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </hspacer>
+              <component id="1a206" class="javax.swing.JTextField">
+                <constraints>
+                  <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                    <preferred-size width="280" height="-1"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <toolTipText value="Tìm sự kiện rồi nhấn Enter..."/>
+                </properties>
+              </component>
+              <component id="1a22b" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <font size="13" style="1"/>
+                  <foreground color="-15456181"/>
+                  <text value="SV  hocsinh01  ▾"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="1a29a" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints border-constraint="Center"/>
+            <properties>
+              <background color="-788999"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="1a275" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <foreground color="-8746850"/>
+                  <text value="Vùng nội dung (CardLayout): Trang chủ / Tra cứu / Của tôi / Đánh giá / Cá nhân"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+        </children>
+      </grid>
+    </children>
+  </grid>
+</form>
