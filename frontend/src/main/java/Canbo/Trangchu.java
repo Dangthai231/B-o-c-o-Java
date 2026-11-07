@@ -24,6 +24,22 @@ public class Trangchu {
     private JLabel lblSoThongBao;
     private JLabel lblSoBaoCao;
 
+    // Colors matching DashboardCanbo theme
+    private static final Color CONTENT_BG = new Color(240, 242, 245);
+    private static final Color CARD_BG = Color.WHITE;
+    private static final Color CARD_BORDER = new Color(230, 233, 238);
+    private static final Color TEXT_DARK = new Color(30, 35, 45);
+    private static final Color TEXT_MUTED = new Color(120, 125, 135);
+    private static final Color ACCENT_BLUE = new Color(33, 150, 243);
+
+    // Icon circle colors
+    private static final Color ICON_BLUE = new Color(33, 150, 243);
+    private static final Color ICON_GREEN = new Color(76, 175, 80);
+    private static final Color ICON_ORANGE = new Color(255, 152, 0);
+    private static final Color ICON_PURPLE = new Color(156, 39, 176);
+    private static final Color ICON_RED = new Color(244, 67, 54);
+    private static final Color ICON_TEAL = new Color(0, 150, 136);
+
     public Trangchu() {
         initUI();
         loadDuLieu();
@@ -31,80 +47,331 @@ public class Trangchu {
 
     private void initUI() {
         mainPanel = new JPanel();
-        mainPanel.setLayout(new BorderLayout(0, 20));
-        mainPanel.setBackground(Color.WHITE);
-        mainPanel.setBorder(new EmptyBorder(25, 30, 25, 30));
+        mainPanel.setLayout(new BorderLayout(0, 0));
+        mainPanel.setBackground(CONTENT_BG);
+        mainPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
 
-        // Header Title
-        JLabel lblTitle = new JLabel("Tổng quan sự kiện");
+        // Scrollable wrapper
+        JPanel scrollContent = new JPanel();
+        scrollContent.setLayout(new BoxLayout(scrollContent, BoxLayout.Y_AXIS));
+        scrollContent.setBackground(CONTENT_BG);
+        scrollContent.setBorder(new EmptyBorder(28, 32, 28, 32));
+
+        // ====== HEADER SECTION ======
+        JPanel headerSection = new JPanel(new BorderLayout());
+        headerSection.setOpaque(false);
+        headerSection.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+
+        JLabel lblTitle = new JLabel("Tổng quan");
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 26));
-        lblTitle.setForeground(new Color(30, 30, 30));
-        mainPanel.add(lblTitle, BorderLayout.NORTH);
-
-        // Center: 6 Cards in 2 rows x 3 columns
-        JPanel cardsGrid = new JPanel(new GridLayout(2, 3, 20, 20));
-        cardsGrid.setBackground(Color.WHITE);
-
-        // Card 1: Sự kiện đang tổ chức
-        lblSoSuKien = new JLabel("3");
-        cardsGrid.add(createStatCard(lblSoSuKien, "Sự kiện đang tổ chức", new Color(30, 136, 229)));
-
-        // Card 2: Sự kiện đã hoàn thành
-        lblSoCongViec = new JLabel("7");
-        cardsGrid.add(createStatCard(lblSoCongViec, "Sự kiện đã hoàn thành", new Color(46, 125, 50)));
-
-        // Card 3: Người tham gia
-        lblSoNguoiThamGia = new JLabel("30");
-        cardsGrid.add(createStatCard(lblSoNguoiThamGia, "Người tham gia", new Color(230, 81, 0)));
-
-        // Card 4: Tài liệu sự kiện
-        lblSoTaiLieu = new JLabel("2");
-        cardsGrid.add(createStatCard(lblSoTaiLieu, "Tài liệu sự kiện", new Color(142, 36, 170)));
-
-        // Card 5: Thông báo đã gửi
-        lblSoThongBao = new JLabel("33");
-        cardsGrid.add(createStatCard(lblSoThongBao, "Thông báo đã gửi", new Color(229, 57, 53)));
-
-        // Card 6: Báo cáo hoàn thành
-        lblSoBaoCao = new JLabel("2");
-        cardsGrid.add(createStatCard(lblSoBaoCao, "Báo cáo hoàn thành", new Color(2, 136, 209)));
-
-        mainPanel.add(cardsGrid, BorderLayout.CENTER);
-
-        // Footer Card
-        JPanel footerPanel = new JPanel(new BorderLayout());
-        footerPanel.setBackground(Color.WHITE);
-        footerPanel.setBorder(new CompoundBorder(
-                new LineBorder(new Color(230, 235, 240), 1),
-                new EmptyBorder(14, 18, 14, 18)
-        ));
+        lblTitle.setForeground(TEXT_DARK);
+        headerSection.add(lblTitle, BorderLayout.NORTH);
 
         String today = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-        lblLoiChaoFooter = new JLabel("Ngày " + today + " - Chúc bạn một ngày làm việc hiệu quả và quản lý sự kiện thành công!");
-        lblLoiChaoFooter.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        lblLoiChaoFooter.setForeground(new Color(60, 60, 60));
-        footerPanel.add(lblLoiChaoFooter, BorderLayout.WEST);
+        JLabel lblSubtitle = new JLabel("Hôm nay " + today + ". Tình hình hoạt động của Liên chi đoàn");
+        lblSubtitle.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        lblSubtitle.setForeground(TEXT_MUTED);
+        headerSection.add(lblSubtitle, BorderLayout.SOUTH);
 
-        mainPanel.add(footerPanel, BorderLayout.SOUTH);
+        scrollContent.add(headerSection);
+        scrollContent.add(Box.createVerticalStrut(24));
+
+        // ====== KPI CARDS ROW (4 cards) ======
+        JPanel kpiRow = new JPanel(new GridLayout(1, 4, 18, 0));
+        kpiRow.setOpaque(false);
+        kpiRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+
+        lblSoNguoiThamGia = new JLabel("30");
+        kpiRow.add(createKpiCard("👥", "Tổng tài khoản", lblSoNguoiThamGia, ICON_BLUE));
+
+        lblSoSuKien = new JLabel("12");
+        kpiRow.add(createKpiCard("📅", "Tổng sự kiện", lblSoSuKien, ICON_GREEN));
+
+        lblSoCongViec = new JLabel("3");
+        kpiRow.add(createKpiCard("⏱", "Sắp diễn ra", lblSoCongViec, ICON_ORANGE));
+
+        lblSoThongBao = new JLabel("33");
+        kpiRow.add(createKpiCard("🔔", "Thông báo đã đăng", lblSoThongBao, ICON_RED));
+
+        scrollContent.add(kpiRow);
+        scrollContent.add(Box.createVerticalStrut(24));
+
+        // ====== BOTTOM SECTION: 2 columns ======
+        JPanel bottomRow = new JPanel(new GridLayout(1, 2, 18, 0));
+        bottomRow.setOpaque(false);
+        bottomRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 340));
+
+        // Left: "Sự kiện sắp diễn ra" card
+        bottomRow.add(createEventListCard());
+
+        // Right: "Việc cần xử lý" card
+        bottomRow.add(createTodoCard());
+
+        scrollContent.add(bottomRow);
+        scrollContent.add(Box.createVerticalStrut(24));
+
+        // ====== 2nd KPI ROW (smaller, remaining 2 stats) ======
+        JPanel kpiRow2 = new JPanel(new GridLayout(1, 2, 18, 0));
+        kpiRow2.setOpaque(false);
+        kpiRow2.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+
+        lblSoTaiLieu = new JLabel("2");
+        kpiRow2.add(createKpiCard("📁", "Tài liệu sự kiện", lblSoTaiLieu, ICON_PURPLE));
+
+        lblSoBaoCao = new JLabel("2");
+        kpiRow2.add(createKpiCard("📊", "Báo cáo hoàn thành", lblSoBaoCao, ICON_TEAL));
+
+        scrollContent.add(kpiRow2);
+        scrollContent.add(Box.createVerticalStrut(16));
+
+        // Footer
+        JPanel footerCard = createRoundedCard();
+        footerCard.setBorder(new EmptyBorder(14, 20, 14, 20));
+        footerCard.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+
+        lblLoiChaoFooter = new JLabel("Ngày " + today + " - Chúc bạn một ngày làm việc hiệu quả và quản lý sự kiện thành công!");
+        lblLoiChaoFooter.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        lblLoiChaoFooter.setForeground(TEXT_MUTED);
+        footerCard.add(lblLoiChaoFooter, BorderLayout.WEST);
+
+        scrollContent.add(footerCard);
+
+        JScrollPane scrollPane = new JScrollPane(scrollContent);
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.setBackground(CONTENT_BG);
+        scrollPane.getViewport().setBackground(CONTENT_BG);
+
+        mainPanel.add(scrollPane, BorderLayout.CENTER);
     }
 
-    private JPanel createStatCard(JLabel numLabel, String title, Color numColor) {
-        JPanel card = new JPanel(new BorderLayout(0, 15));
-        card.setBackground(Color.WHITE);
-        card.setBorder(new CompoundBorder(
-                new LineBorder(new Color(230, 235, 240), 1),
-                new EmptyBorder(25, 25, 25, 25)
-        ));
+    // ===== KPI Card matching screenshot style =====
+    private JPanel createKpiCard(String icon, String title, JLabel numLabel, Color iconColor) {
+        JPanel card = createRoundedCard();
+        card.setLayout(new BorderLayout(12, 0));
+        card.setBorder(new EmptyBorder(18, 20, 18, 20));
 
-        numLabel.setFont(new Font("Segoe UI", Font.BOLD, 46));
-        numLabel.setForeground(numColor);
-        card.add(numLabel, BorderLayout.CENTER);
+        // Left: colored circle icon
+        JPanel iconCircle = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                // Light tinted circle
+                g2.setColor(new Color(iconColor.getRed(), iconColor.getGreen(), iconColor.getBlue(), 30));
+                g2.fillOval(0, 0, 44, 44);
+                // Icon text
+                g2.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 20));
+                FontMetrics fm = g2.getFontMetrics();
+                int x = (44 - fm.stringWidth(icon)) / 2;
+                int y = (44 + fm.getAscent() - fm.getDescent()) / 2;
+                g2.setColor(iconColor);
+                g2.drawString(icon, x, y);
+                g2.dispose();
+            }
+        };
+        iconCircle.setOpaque(false);
+        iconCircle.setPreferredSize(new Dimension(44, 44));
+        card.add(iconCircle, BorderLayout.WEST);
+
+        // Right: text
+        JPanel textPanel = new JPanel();
+        textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
+        textPanel.setOpaque(false);
 
         JLabel lblTitle = new JLabel(title);
-        lblTitle.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        lblTitle.setForeground(new Color(110, 110, 110));
-        card.add(lblTitle, BorderLayout.SOUTH);
+        lblTitle.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lblTitle.setForeground(TEXT_MUTED);
+        textPanel.add(lblTitle);
+        textPanel.add(Box.createVerticalStrut(4));
 
+        numLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        numLabel.setForeground(TEXT_DARK);
+        textPanel.add(numLabel);
+
+        card.add(textPanel, BorderLayout.CENTER);
+
+        return card;
+    }
+
+    // ===== "Sự kiện sắp diễn ra" table card =====
+    private JPanel createEventListCard() {
+        JPanel card = createRoundedCard();
+        card.setLayout(new BorderLayout(0, 10));
+        card.setBorder(new EmptyBorder(18, 20, 18, 20));
+
+        // Card header
+        JPanel headerRow = new JPanel(new BorderLayout());
+        headerRow.setOpaque(false);
+
+        JLabel lblTitle = new JLabel("Sự kiện sắp diễn ra");
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblTitle.setForeground(TEXT_DARK);
+        headerRow.add(lblTitle, BorderLayout.WEST);
+
+        JLabel lblViewAll = new JLabel("Xem tất cả >");
+        lblViewAll.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lblViewAll.setForeground(ACCENT_BLUE);
+        lblViewAll.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        headerRow.add(lblViewAll, BorderLayout.EAST);
+
+        card.add(headerRow, BorderLayout.NORTH);
+
+        // Table
+        String[] columns = {"Sự kiện", "Bắt đầu", "Đăng ký"};
+        Object[][] data = {
+                {"Đêm nhạc chào tân sinh viên", "09/11/2026 08:00", "0 / 2"},
+                {"Giải bóng đá Liên chi đoàn CNTT", "11/11/2026 08:00", "4 / 120"},
+                {"Seminar An toàn thông tin", "13/11/2026 08:00", "4 / 100"},
+                {"Workshop Lập trình Java Spring Boot", "16/11/2026 08:00", "5 / 40"},
+                {"Cuộc thi Hackathon EPU", "20/11/2026 08:00", "3 / 50"},
+        };
+
+        JTable table = new JTable(data, columns);
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        table.setRowHeight(48);
+        table.setShowGrid(false);
+        table.setIntercellSpacing(new Dimension(0, 0));
+        table.setBackground(CARD_BG);
+        table.setSelectionBackground(new Color(232, 240, 254));
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+        table.getTableHeader().setBackground(CARD_BG);
+        table.getTableHeader().setForeground(TEXT_MUTED);
+        table.getTableHeader().setBorder(new CompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 1, 0, CARD_BORDER),
+                new EmptyBorder(8, 0, 8, 0)
+        ));
+
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setBorder(null);
+        scrollPane.getViewport().setBackground(CARD_BG);
+
+        card.add(scrollPane, BorderLayout.CENTER);
+
+        return card;
+    }
+
+    // ===== "Việc cần xử lý" card =====
+    private JPanel createTodoCard() {
+        JPanel card = createRoundedCard();
+        card.setLayout(new BorderLayout(0, 10));
+        card.setBorder(new EmptyBorder(18, 20, 18, 20));
+
+        JLabel lblTitle = new JLabel("Việc cần xử lý");
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblTitle.setForeground(TEXT_DARK);
+
+        JLabel lblSubtitle = new JLabel("8 việc đang chờ bạn xử lý");
+        lblSubtitle.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        lblSubtitle.setForeground(TEXT_MUTED);
+
+        JPanel headerPanel = new JPanel();
+        headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
+        headerPanel.setOpaque(false);
+        headerPanel.add(lblTitle);
+        headerPanel.add(Box.createVerticalStrut(2));
+        headerPanel.add(lblSubtitle);
+
+        card.add(headerPanel, BorderLayout.NORTH);
+
+        // Todo items
+        JPanel todoList = new JPanel();
+        todoList.setLayout(new BoxLayout(todoList, BoxLayout.Y_AXIS));
+        todoList.setOpaque(false);
+
+        todoList.add(Box.createVerticalStrut(8));
+        todoList.add(createTodoItem("📋", "Kế hoạch sự kiện chờ duyệt", "Bấm để xử lý", "2", new Color(255, 152, 0)));
+        todoList.add(Box.createVerticalStrut(10));
+        todoList.add(createTodoItem("🔔", "Thông báo chờ duyệt", "Bấm để xử lý", "3", new Color(244, 67, 54)));
+        todoList.add(Box.createVerticalStrut(10));
+        todoList.add(createTodoItem("👤", "Yêu cầu đổi thông tin", "Bấm để xử lý", "3", new Color(33, 150, 243)));
+
+        card.add(todoList, BorderLayout.CENTER);
+
+        return card;
+    }
+
+    private JPanel createTodoItem(String icon, String title, String subtitle, String count, Color accentColor) {
+        JPanel item = new JPanel(new BorderLayout(12, 0)) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(new Color(248, 249, 252));
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 12, 12);
+                g2.dispose();
+            }
+        };
+        item.setOpaque(false);
+        item.setBorder(new EmptyBorder(14, 16, 14, 16));
+        item.setMaximumSize(new Dimension(Integer.MAX_VALUE, 68));
+        item.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        // Icon circle
+        JPanel iconPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(new Color(accentColor.getRed(), accentColor.getGreen(), accentColor.getBlue(), 30));
+                g2.fillRoundRect(0, 0, 40, 40, 10, 10);
+                g2.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 18));
+                FontMetrics fm = g2.getFontMetrics();
+                g2.setColor(accentColor);
+                g2.drawString(icon, (40 - fm.stringWidth(icon)) / 2, (40 + fm.getAscent() - fm.getDescent()) / 2);
+                g2.dispose();
+            }
+        };
+        iconPanel.setOpaque(false);
+        iconPanel.setPreferredSize(new Dimension(40, 40));
+        item.add(iconPanel, BorderLayout.WEST);
+
+        // Text
+        JPanel textPanel = new JPanel();
+        textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
+        textPanel.setOpaque(false);
+
+        JLabel lblTitle = new JLabel(title);
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lblTitle.setForeground(TEXT_DARK);
+        textPanel.add(lblTitle);
+
+        JLabel lblSub = new JLabel(subtitle);
+        lblSub.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        lblSub.setForeground(TEXT_MUTED);
+        textPanel.add(lblSub);
+
+        item.add(textPanel, BorderLayout.CENTER);
+
+        // Count badge
+        JLabel lblCount = new JLabel(count);
+        lblCount.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        lblCount.setForeground(accentColor);
+        item.add(lblCount, BorderLayout.EAST);
+
+        return item;
+    }
+
+    // ===== Rounded white card panel =====
+    private JPanel createRoundedCard() {
+        JPanel card = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                // Shadow
+                g2.setColor(new Color(0, 0, 0, 12));
+                g2.fillRoundRect(2, 2, getWidth() - 2, getHeight() - 2, 14, 14);
+                // Card
+                g2.setColor(CARD_BG);
+                g2.fillRoundRect(0, 0, getWidth() - 2, getHeight() - 2, 14, 14);
+                // Border
+                g2.setColor(CARD_BORDER);
+                g2.drawRoundRect(0, 0, getWidth() - 3, getHeight() - 3, 14, 14);
+                g2.dispose();
+            }
+        };
+        card.setOpaque(false);
         return card;
     }
 
