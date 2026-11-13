@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.eventmanager.fe.gui.Admin.SuKienDialogs">
+  <grid id="a338" binding="mainPanel" layout-manager="GridLayoutManager" hgap="12" vgap="16" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false">
+    <margin top="0" left="0" bottom="0" right="0" />
+    <constraints>
+      <xy x="20" y="20" width="1200" height="720" />
+    </constraints>
+    <properties>
+      <background color="-1" />
+    </properties>
+    <border type="none" />
+    <children>
+      <grid id="a329" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="12" vgap="10" binding="pnlThongTin">
+        <margin top="0" left="0" bottom="0" right="0" />
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <background color="-1" />
+        </properties>
+        <border type="none" />
+        <children>
+          <grid id="a317" layout-manager="GridLayoutManager" row-count="4" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="12" vgap="10">
+            <margin top="0" left="0" bottom="0" right="0" />
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" />
+            </constraints>
+            <properties>
+              <background color="-1" />
+            </properties>
+            <border type="none" />
+            <children>
+              <grid id="a307" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="12" vgap="10">
+                <margin top="0" left="0" bottom="0" right="0" />
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" />
+                </constraints>
+                <properties>
+                  <background color="-1" />
+                </properties>
+                <border type="none" />
+                <children>
+                  <component id="a306" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" />
+                    </constraints>
+                    <properties>
+                      <font name="Segoe UI" size="12" style="1" />
+                      <foreground color="-14402733" />
+                      <text value="Tên sự kiện *" />
+                    </properties>
+                  </component>
+                  <component id="a305" binding="txtTenSuKien" class="javax.swing.JTextField" custom-create="true">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="0" fill="1" />
+                    </constraints>
+                    <properties>
+                      <font name="Segoe UI" size="13" style="0" />
+                      <toolTipText value="Nhập tên sự kiện" />
+                      <preferredSize>
+                        <size width="180" height="32" />
+                      </preferredSize>
+                      <minimumSize>
+                        <size width="50" height="32" />
+                      </minimumSize>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+              <grid id="a310" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="12" vgap="10">
+                <margin top="0" left="0" bottom="0" right="0" />
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" />
+                </constraints>
+                <properties>
+                  <background color="-1" />
+                </properties>
+                <border type="none" />
+                <children>
+                  <component id="a309" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" />
+                    </constraints>
+                    <properties>
+                      <font name="Segoe UI" size="12" style="1" />
+                      <foreground color="-14402733" />
+                      <text value="Thời gian bắt đầu *" />
+                    </properties>
+                  </component>
+                  <component id="a308" binding="txtThoiGianBatDau" class="javax.swing.JTextField" custom-create="true">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="0" fill="1" />
+                    </constraints>
+                    <properties>
+                      <font name="Segoe UI" size="13" style="0" />
+                      <toolTipText value="dd/MM/yyyy HH:mm" />
+                      <preferredSize>
+                        <size width="180" height="32" />
+                      </preferredSize>
+                      <minimumSize>
+                        <size width="50" height="32" />
+                      </minimumSize>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+              <grid id="a313" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="12" vgap="10">
+                <margin top="0" left="0" bottom="0" right="0" />
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" />
+                </constraints>
+                <properties>
+                  <background color="-1" />
+                </properties>
+                <border type="none" />
+                <children>
+                  <component id="a312" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" />
+                    </constraints>
+                    <properties>
+                      <font name="Segoe UI" size="12" style="1" />
+                      <foreground color="-14402733" />
+                      <text value="Thời gian kết thúc *" />
+                    </properties>
+                  </component>
+                  <component id="a311" binding="txtThoiGianKetThuc" class="javax.swing.JTextField" custom-create="true">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="0" fill="1" />
+                    </constraints>
+                    <properties>
+                      <font name="Segoe UI" size="13" style="0" />
+                      <toolTipText value="dd/MM/yyyy HH:mm" />
+                      <preferredSize>
+                        <size width="180" height="32" />
+                      </preferredSize>
+                      <minimumSize>
+                        <size width="50" height="32" />
+                      </minimumSize>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+              <grid id="a316" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="12" vgap="10">
+                <margin top="0" left="0" bottom="0" right="0" />
+                <constraints>
+                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" />
+                </constraints>
+                <properties>
+                  <background color="-1" />
+                </properties>
+                <border type="none" />
+                <children>
+                  <component id="a315" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" />
+                    </constraints>
+                    <properties>
+                      <font name="Segoe UI" size="12" style="1" />
+                      <foreground color="-14402733" />
+                      <text value="Địa điểm *" />
+                    </properties>
+                  </component>
+                  <component id="a314" binding="txtDiaDiem" class="javax.swing.JTextField" custom-create="true">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="0" fill="1" />
+                    </constraints>
+                    <properties>
+                      <font name="Segoe UI" size="13" style="0" />
+                      <toolTipText value="Ví dụ: Hội trường A" />
+                      <preferredSize>
+                        <size width="180" height="32" />
+                      </preferredSize>
+                      <minimumSize>
+                        <size width="50" height="32" />
+                      </minimumSize>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+            </children>
+          </grid>
+          <grid id="a327" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="12" vgap="10">
+            <margin top="0" left="0" bottom="0" right="0" />
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" />
+            </constraints>
+            <properties>
+              <background color="-1" />
+            </properties>
+            <border type="none" />
+            <children>
+              <grid id="a320" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="12" vgap="10">
+                <margin top="0" left="0" bottom="0" right="0" />
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" />
+                </constraints>
+                <properties>
+                  <background color="-1" />
+                </properties>
+                <border type="none" />
+                <children>
+                  <component id="a319" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" />
+                    </constraints>
+                    <properties>
+                      <font name="Segoe UI" size="12" style="1" />
+                      <foreground color="-14402733" />
+                      <text value="Số lượng tối đa *" />
+                    </properties>
+                  </component>
+                  <component id="a318" binding="txtSoLuongToiDa" class="javax.swing.JTextField" custom-create="true">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="0" fill="1" />
+                    </constraints>
+                    <properties>
+                      <font name="Segoe UI" size="13" style="0" />
+                      <toolTipText value="Ví dụ: 200" />
+                      <preferredSize>
+                        <size width="180" height="32" />
+                      </preferredSize>
+                      <minimumSize>
+                        <size width="50" height="32" />
+                      </minimumSize>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+              <grid id="a323" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="12" vgap="10">
+                <margin top="0" left="0" bottom="0" right="0" />
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" />
+                </constraints>
+                <properties>
+                  <background color="-1" />
+                </properties>
+                <border type="none" />
+                <children>
+                  <component id="a322" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" />
+                    </constraints>
+                    <properties>
+                      <font name="Segoe UI" size="12" style="1" />
+                      <foreground color="-14402733" />
+                      <text value="Đơn vị tổ chức" />
+                    </properties>
+                  </component>
+                  <component id="a321" binding="txtDonViToChuc" class="javax.swing.JTextField" custom-create="true">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="0" fill="1" />
+                    </constraints>
+                    <properties>
+                      <font name="Segoe UI" size="13" style="0" />
+                      <toolTipText value="Tên đơn vị tổ chức" />
+                      <preferredSize>
+                        <size width="180" height="32" />
+                      </preferredSize>
+                      <minimumSize>
+                        <size width="50" height="32" />
+                      </minimumSize>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+              <grid id="a326" binding="nhomTrangThai" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="12" vgap="10">
+                <margin top="0" left="0" bottom="0" right="0" />
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" />
+                </constraints>
+                <properties>
+                  <background color="-1" />
+                </properties>
+                <border type="none" />
+                <children>
+                  <component id="a325" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" />
+                    </constraints>
+                    <properties>
+                      <font name="Segoe UI" size="12" style="1" />
+                      <foreground color="-14402733" />
+                      <text value="Trạng thái" />
+                    </properties>
+                  </component>
+                  <component id="a324" binding="cboTrangThai" class="javax.swing.JComboBox">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="0" fill="1" />
+                    </constraints>
+                    <properties>
+                      <font name="Segoe UI" size="13" style="0" />
+                      <model>
+                        <item value="Sắp diễn ra" />
+                        <item value="Đang diễn ra" />
+                        <item value="Đã kết thúc" />
+                        <item value="Đã hủy" />
+                      </model>
+                      <preferredSize>
+                        <size width="175" height="32" />
+                      </preferredSize>
+                      <minimumSize>
+                        <size width="110" height="32" />
+                      </minimumSize>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+            </children>
+          </grid>
+        </children>
+      </grid>
+      <grid id="a332" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="12" vgap="10" binding="pnlNhapLieu">
+        <margin top="0" left="0" bottom="0" right="0" />
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <background color="-1" />
+        </properties>
+        <border type="none" />
+        <children>
+          <component id="a331" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" />
+            </constraints>
+            <properties>
+              <font name="Segoe UI" size="12" style="1" />
+              <foreground color="-14402733" />
+              <text value="Mô tả" />
+            </properties>
+          </component>
+          <scrollpane id="a330">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" />
+            </constraints>
+            <properties />
+            <border type="none" />
+            <children>
+              <component id="a328" binding="txtMoTa" class="javax.swing.JTextArea">
+                <constraints />
+                <properties>
+                  <font name="Segoe UI" size="13" style="0" />
+                  <rows value="4" />
+                  <lineWrap value="true" />
+                  <wrapStyleWord value="true" />
+                </properties>
+              </component>
+            </children>
+          </scrollpane>
+        </children>
+      </grid>
+      <grid id="a337" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="12" vgap="10" binding="pnlNutChucNang">
+        <margin top="0" left="0" bottom="0" right="0" />
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <background color="-1" />
+        </properties>
+        <border type="none" />
+        <children>
+          <component id="a333" binding="loi" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" />
+            </constraints>
+            <properties>
+              <font name="Segoe UI" size="12" style="0" />
+              <foreground color="-2345659" />
+              <text value=" " />
+            </properties>
+          </component>
+          <grid id="a336" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="12" vgap="10">
+            <margin top="0" left="0" bottom="0" right="0" />
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" />
+            </constraints>
+            <properties>
+              <background color="-1" />
+            </properties>
+            <border type="none" />
+            <children>
+              <component id="a334" binding="huy" class="javax.swing.JButton">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" />
+                </constraints>
+                <properties>
+                  <font name="Segoe UI" size="13" style="0" />
+                  <background color="-1" />
+                  <foreground color="-14402733" />
+                  <focusPainted value="false" />
+                  <preferredSize>
+                    <size width="130" height="30" />
+                  </preferredSize>
+                  <text value="Hủy" />
+                </properties>
+              </component>
+              <component id="a335" binding="luu" class="javax.swing.JButton">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" />
+                </constraints>
+                <properties>
+                  <font name="Segoe UI" size="13" style="0" />
+                  <background color="-15374912" />
+                  <foreground color="-1" />
+                  <focusPainted value="false" />
+                  <preferredSize>
+                    <size width="130" height="30" />
+                  </preferredSize>
+                  <text value="Tạo sự kiện" />
+                  <contentAreaFilled value="false" />
+                  <opaque value="true" />
+                  <borderPainted value="false" />
+                </properties>
+              </component>
+            </children>
+          </grid>
+        </children>
+      </grid>
+    </children>
+  </grid>
+</form>
