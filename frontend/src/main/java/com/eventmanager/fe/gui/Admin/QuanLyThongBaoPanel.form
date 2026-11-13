@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.eventmanager.fe.gui.Admin.QuanLyThongBaoPanel">
+  <grid id="a111" binding="mainPanel" layout-manager="GridLayoutManager" hgap="12" vgap="16" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false">
+    <margin top="0" left="0" bottom="0" right="0" />
+    <constraints>
+      <xy x="20" y="20" width="1200" height="720" />
+    </constraints>
+    <properties>
+      <background color="-657414" />
+    </properties>
+    <border type="none" />
+    <children>
+      <grid id="a109" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="12" vgap="10" binding="pnlTieuDe">
+        <margin top="0" left="0" bottom="0" right="0" />
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <background color="-657414" />
+        </properties>
+        <border type="none" />
+        <children>
+          <component id="a107" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" />
+            </constraints>
+            <properties>
+              <font name="Segoe UI" size="24" style="1" />
+              <foreground color="-16045232" />
+              <text value="Quản lý thông báo" />
+            </properties>
+          </component>
+          <component id="a108" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="3" />
+            </constraints>
+            <properties>
+              <font name="Segoe UI" size="13" style="0" />
+              <foreground color="-10322536" />
+              <text value="Tạo, duyệt, đăng và quản lý các thông báo gửi tới đoàn viên" />
+            </properties>
+          </component>
+        </children>
+      </grid>
+      <grid id="a106" layout-manager="BorderLayout" hgap="12" vgap="16" binding="pnlNoiDung">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <background color="-1" />
+        </properties>
+        <border type="empty">
+          <size top="14" left="14" bottom="14" right="14" />
+        </border>
+        <children>
+          <grid id="a103" layout-manager="GridLayoutManager" hgap="12" vgap="0" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false">
+            <margin top="0" left="0" bottom="0" right="0" />
+            <constraints border-constraint="North" />
+            <properties>
+              <background color="-1" />
+            </properties>
+            <border type="none" />
+            <children>
+              <grid id="locTrangThai" binding="pnlLocTrangThai" layout-manager="FlowLayout" flow-align="0" hgap="6" vgap="0">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" anchor="8" fill="1" hsize-policy="7" vsize-policy="0" />
+                </constraints>
+                <properties>
+                  <opaque value="false" />
+                </properties>
+                <border type="none" />
+                <children>
+                  <component id="loc_0" class="javax.swing.JToggleButton" binding="btnLocChoDuyet">
+                    <constraints />
+                    <properties>
+                      <font name="Segoe UI" size="12" style="0" />
+                      <text value="Chờ duyệt" />
+                      <toolTipText value="Lọc: chờ duyệt" />
+                      <contentAreaFilled value="false" />
+                      <opaque value="true" />
+                      <borderPainted value="false" />
+                      <focusPainted value="false" />
+                      <background color="-15374912" />
+                      <foreground color="-1" />
+                      <selected value="true" />
+                      <preferredSize>
+                        <size width="104" height="30" />
+                      </preferredSize>
+                    </properties>
+                  </component>
+                  <component id="loc_1" class="javax.swing.JToggleButton" binding="btnLocDaDuyet">
+                    <constraints />
+                    <properties>
+                      <font name="Segoe UI" size="12" style="0" />
+                      <text value="Đã duyệt" />
+                      <toolTipText value="Lọc: đã duyệt" />
+                      <contentAreaFilled value="false" />
+                      <opaque value="true" />
+                      <borderPainted value="false" />
+                      <focusPainted value="false" />
+                      <background color="-657414" />
+                      <foreground color="-14402733" />
+                      <selected value="false" />
+                      <preferredSize>
+                        <size width="100" height="30" />
+                      </preferredSize>
+                    </properties>
+                  </component>
+                  <component id="loc_2" class="javax.swing.JToggleButton" binding="btnLocDaDang">
+                    <constraints />
+                    <properties>
+                      <font name="Segoe UI" size="12" style="0" />
+                      <text value="Đã đăng" />
+                      <toolTipText value="Lọc: đã đăng" />
+                      <contentAreaFilled value="false" />
+                      <opaque value="true" />
+                      <borderPainted value="false" />
+                      <focusPainted value="false" />
+                      <background color="-657414" />
+                      <foreground color="-14402733" />
+                      <selected value="false" />
+                      <preferredSize>
+                        <size width="100" height="30" />
+                      </preferredSize>
+                    </properties>
+                  </component>
+                  <component id="loc_3" class="javax.swing.JToggleButton" binding="btnLocTuChoi">
+                    <constraints />
+                    <properties>
+                      <font name="Segoe UI" size="12" style="0" />
+                      <text value="Từ chối" />
+                      <toolTipText value="Lọc: từ chối" />
+                      <contentAreaFilled value="false" />
+                      <opaque value="true" />
+                      <borderPainted value="false" />
+                      <focusPainted value="false" />
+                      <background color="-657414" />
+                      <foreground color="-14402733" />
+                      <selected value="false" />
+                      <preferredSize>
+                        <size width="90" height="30" />
+                      </preferredSize>
+                    </properties>
+                  </component>
+                  <component id="loc_4" class="javax.swing.JToggleButton" binding="btnLocDaGo">
+                    <constraints />
+                    <properties>
+                      <font name="Segoe UI" size="12" style="0" />
+                      <text value="Đã gỡ" />
+                      <toolTipText value="Lọc: đã gỡ" />
+                      <contentAreaFilled value="false" />
+                      <opaque value="true" />
+                      <borderPainted value="false" />
+                      <focusPainted value="false" />
+                      <background color="-657414" />
+                      <foreground color="-14402733" />
+                      <selected value="false" />
+                      <preferredSize>
+                        <size width="90" height="30" />
+                      </preferredSize>
+                    </properties>
+                  </component>
+                  <component id="loc_5" class="javax.swing.JToggleButton" binding="btnLocTatCa">
+                    <constraints />
+                    <properties>
+                      <font name="Segoe UI" size="12" style="0" />
+                      <text value="Tất cả" />
+                      <toolTipText value="Lọc: tất cả" />
+                      <contentAreaFilled value="false" />
+                      <opaque value="true" />
+                      <borderPainted value="false" />
+                      <focusPainted value="false" />
+                      <background color="-657414" />
+                      <foreground color="-14402733" />
+                      <selected value="false" />
+                      <preferredSize>
+                        <size width="96" height="30" />
+                      </preferredSize>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+              <component id="a102" binding="btnTaoThongBao" class="javax.swing.JButton">
+                <constraints>
+                  <grid row="0" column="1" row-span="1" col-span="1" anchor="4" fill="0" hsize-policy="0" vsize-policy="0" />
+                </constraints>
+                <properties>
+                  <font name="Segoe UI" size="13" style="0" />
+                  <background color="-15374912" />
+                  <foreground color="-1" />
+                  <focusPainted value="false" />
+                  <preferredSize>
+                    <size width="130" height="30" />
+                  </preferredSize>
+                  <text value="+ Tạo thông báo" />
+                  <contentAreaFilled value="false" />
+                  <opaque value="true" />
+                  <borderPainted value="false" />
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <grid id="a105" layout-manager="BorderLayout" hgap="12" vgap="16">
+            <constraints border-constraint="Center" />
+            <properties>
+              <background color="-1" />
+            </properties>
+            <border type="none" />
+            <children>
+              <grid id="a94" layout-manager="BorderLayout" hgap="12" vgap="16" binding="pnlBoLoc">
+                <constraints border-constraint="North" />
+                <properties>
+                  <background color="-1" />
+                </properties>
+                <border type="none" />
+                <children>
+                  <grid id="nhom_txtTimKiem" binding="pnlTruongTxtTimKiem" layout-manager="BorderLayout" hgap="0" vgap="4">
+                    <constraints border-constraint="West" />
+                    <properties>
+                      <opaque value="false" />
+                    </properties>
+                    <border type="none" />
+                    <children>
+                      <component id="nhan_txtTimKiem" binding="lblNhanTxtTimKiem" class="javax.swing.JLabel">
+                        <constraints border-constraint="North" />
+                        <properties>
+                          <font name="Segoe UI" size="12" style="0" />
+                          <foreground color="-10322536" />
+                          <text value="Tìm thông báo" />
+                          <labelFor value="a92" />
+                        </properties>
+                      </component>
+                      <component id="a92" binding="txtTimKiem" class="javax.swing.JTextField" custom-create="true">
+                        <constraints border-constraint="Center" />
+                        <properties>
+                          <font name="Segoe UI" size="13" style="0" />
+                          <toolTipText value="Tiêu đề, mã thông báo" />
+                          <preferredSize>
+                            <size width="180" height="32" />
+                          </preferredSize>
+                          <minimumSize>
+                            <size width="50" height="32" />
+                          </minimumSize>
+                        </properties>
+                      </component>
+                    </children>
+                  </grid>
+                </children>
+              </grid>
+              <scrollpane id="a104">
+                <constraints border-constraint="Center" />
+                <properties />
+                <border type="none" />
+                <children>
+                  <component id="a91" binding="bangThongBao" class="com.eventmanager.fe.gui.Admin.common.BangDep" custom-create="true">
+                    <constraints />
+                    <properties />
+                  </component>
+                </children>
+              </scrollpane>
+            </children>
+          </grid>
+        </children>
+      </grid>
+    </children>
+  </grid>
+</form>

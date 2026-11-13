@@ -34,6 +34,25 @@ public final class Api {
 
     /** Chạy việc ở luồng nền; xong thì gọi thanhCong trên luồng giao diện, lỗi thì hiện hộp thoại. */
     public static <T> void chayNen(Component cha, Viec<T> viec, Consumer<T> thanhCong) {
+        chayNen(cha, viec, thanhCong, () -> { });
+    }
+
+    /** Chặn bấm lặp trong lúc một thao tác ghi dữ liệu của trang đang chạy. */
+    public static <T> void chayThaoTac(Component cha, Viec<T> viec, Consumer<T> thanhCong) {
+        if (!(cha instanceof TrangAdmin trang)) {
+            chayNen(cha, viec, thanhCong);
+            return;
+        }
+        if (Boolean.TRUE.equals(trang.getClientProperty("admin.dangLuu"))) return;
+        trang.putClientProperty("admin.dangLuu", true);
+        chayNen(cha, viec, thanhCong, () -> trang.putClientProperty("admin.dangLuu", false));
+    }
+
+    private static <T> void chayNen(Component cha, Viec<T> viec, Consumer<T> thanhCong, Runnable ketThuc) {
+        // Chỉ các trang Admin dùng vùng trạng thái; các màn hình khác giữ cách báo lỗi cũ.
+        TrangAdmin trang = cha instanceof TrangAdmin ? (TrangAdmin) cha
+                : (TrangAdmin) SwingUtilities.getAncestorOfClass(TrangAdmin.class, cha);
+        if (trang != null) trang.batDauTai();
         new SwingWorker<T, Void>() {
             @Override
             protected T doInBackground() throws Exception {
@@ -42,12 +61,18 @@ public final class Api {
 
             @Override
             protected void done() {
+                String loi = null;
                 try {
                     thanhCong.accept(get());
                 } catch (ExecutionException e) {
-                    HopThoai.loi(cha, e.getCause() == null ? e.getMessage() : e.getCause().getMessage());
+                    loi = e.getCause() == null ? e.getMessage() : e.getCause().getMessage();
+                    if (trang == null) HopThoai.loi(cha, loi);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
+                    loi = "Yêu cầu bị gián đoạn";
+                } finally {
+                    if (trang != null) trang.ketThucTai(loi);
+                    ketThuc.run();
                 }
             }
         }.execute();

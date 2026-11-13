@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.eventmanager.fe.gui.Admin.common.TrangAdmin">
+  <grid id="a356" binding="khungTrang" layout-manager="GridLayoutManager" hgap="12" vgap="16" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false">
+    <margin top="0" left="0" bottom="0" right="0" />
+    <constraints>
+      <xy x="20" y="20" width="1200" height="720" />
+    </constraints>
+    <properties>
+      <background color="-657414" />
+    </properties>
+    <border type="none" />
+    <children>
+      <grid id="a354" binding="vungNoiDung" layout-manager="BorderLayout" hgap="12" vgap="16">
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <background color="-657414" />
+        </properties>
+        <border type="none" />
+        <children />
+      </grid>
+      <component id="a355" binding="lblTrangThai" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false" />
+        </constraints>
+        <properties>
+          <font name="Segoe UI" size="12" style="0" />
+          <foreground color="-10322536" />
+          <text value="Sẵn sàng" />
+        </properties>
+      </component>
+    </children>
+  </grid>
+</form>
