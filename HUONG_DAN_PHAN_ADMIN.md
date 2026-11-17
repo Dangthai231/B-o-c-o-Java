@@ -7,7 +7,7 @@ Swing (FE)  --HTTP/JSON-->  Controller  -->  Service (kiểm tra nghiệp vụ) 
 QuanLyTaiKhoanPanel   GET /api/admin/tai-khoan   AdminTaiKhoanController   TaiKhoanAdminService   TaiKhoanRepository   tai_khoan
 ```
 
-- FE **không** kết nối thẳng DB, chỉ gọi API qua `ApiClient` (gói `Admin/common/Api.java` bọc thêm DELETE + chạy nền).
+- FE **không** kết nối thẳng DB, chỉ gọi API qua `ApiClient` (gói `api/Api.java` bọc thêm DELETE + chạy nền).
 - BE chia 3 lớp: **Controller** nhận yêu cầu → **Service** kiểm tra đúng/sai → **Repository** đọc/ghi DB.
 - Lỗi nghiệp vụ: Service `throw new LoiNghiepVu("...")` → `AdminExceptionHandler` trả `{"message": "..."}` → FE hiện thông báo.
 
