@@ -1,5 +1,7 @@
 package com.eventmanager.fe.gui.Admin;
 
+import com.eventmanager.fe.api.Api;
+
 import com.eventmanager.fe.gui.Admin.common.*;
 import com.eventmanager.fe.gui.Login.Login;
 import com.google.gson.JsonObject;
@@ -52,6 +54,7 @@ public class DashboardAdmin implements TrangAdmin.DieuHuong {
 
     private void initComponents() {
         $$$setupUI$$$();
+        trangTriChanMenu();
         cardLayout = (CardLayout) noiDung.getLayout();
         trangTaiKhoan = new QuanLyTaiKhoanPanel(this);
         trangPhanQuyen = new PhanQuyenPanel(this);
@@ -99,6 +102,55 @@ public class DashboardAdmin implements TrangAdmin.DieuHuong {
         btnTaiKhoan.addActionListener(e -> popup.show(btnTaiKhoan, 0, btnTaiKhoan.getHeight()));
         btnDangXuat.addActionListener(e -> dangXuat());
         moTrang(TONG_QUAN);
+    }
+
+    private void trangTriChanMenu() {
+        Color nen = sidebar.getBackground();
+        pnlChanMenu.removeAll();
+        pnlChanMenu.setLayout(new BorderLayout(0, 16));
+        pnlChanMenu.setBackground(nen);
+        pnlChanMenu.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(0x224568)),
+                new EmptyBorder(18, 16, 18, 16)));
+
+        JPanel thongTin = new JPanel(new BorderLayout(10, 0));
+        thongTin.setOpaque(false);
+        thongTin.add(new JLabel(Icons.of(Icons.CAP, 28, new Color(0xB8D4F5))), BorderLayout.WEST);
+        JPanel chu = new JPanel();
+        chu.setOpaque(false);
+        chu.setLayout(new BoxLayout(chu, BoxLayout.Y_AXIS));
+        chu.add(UI.nhan("Đại học Điện lực", Theme.font(Font.BOLD, 13), Color.WHITE));
+        chu.add(Box.createVerticalStrut(5));
+        chu.add(UI.nhan("Kết nối tri thức", Theme.font(Font.PLAIN, 11), new Color(0xAAC0DA)));
+        chu.add(Box.createVerticalStrut(2));
+        chu.add(UI.nhan("Kiến tạo tương lai", Theme.font(Font.PLAIN, 11), new Color(0xAAC0DA)));
+        thongTin.add(chu, BorderLayout.CENTER);
+        pnlChanMenu.add(thongTin, BorderLayout.CENTER);
+
+        btnDangXuat = new JButton("Đăng xuất", Icons.of(Icons.LOGOUT, 18, new Color(0xE4EDF9))) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = Theme.muot(g);
+                g2.setColor(getModel().isPressed() ? new Color(0x244F7D)
+                        : getModel().isRollover() ? new Color(0x20456E) : new Color(0x16385D));
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 12, 12);
+                g2.setColor(new Color(0x365777));
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 12, 12);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        btnDangXuat.setFont(Theme.BODY_BOLD);
+        btnDangXuat.setForeground(new Color(0xE4EDF9));
+        btnDangXuat.setIconTextGap(10);
+        btnDangXuat.setContentAreaFilled(false);
+        btnDangXuat.setOpaque(false);
+        btnDangXuat.setBorder(new EmptyBorder(11, 16, 11, 16));
+        btnDangXuat.setFocusPainted(false);
+        btnDangXuat.setRolloverEnabled(true);
+        btnDangXuat.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        btnDangXuat.setPreferredSize(new Dimension(218, 42));
+        pnlChanMenu.add(btnDangXuat, BorderLayout.SOUTH);
     }
 
     private void dangXuat() {
