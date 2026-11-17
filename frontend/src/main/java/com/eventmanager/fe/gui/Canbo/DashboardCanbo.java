@@ -33,6 +33,7 @@ public class DashboardCanbo {
     public static final String TAI_LIEU = "tailieu";
     public static final String NGUOI_THAM_GIA = "nguoithamgia";
     public static final String THONG_BAO = "thongbao";
+    public static final String CONG_VIEC = "congviec";
 
     private final String currentUsername;
     private JPanel mainPanel;
@@ -47,6 +48,7 @@ public class DashboardCanbo {
     private Quanlytailieusukien quanlytailieusukien;
     private Quanlynguoithamgia quanlynguoithamgia;
     private Quanlythongbao quanlythongbao;
+    private Quanlycongviec quanlycongviec;
 
     public DashboardCanbo() {
         this("canbo01");
@@ -67,6 +69,7 @@ public class DashboardCanbo {
         quanlytailieusukien = new Quanlytailieusukien();
         quanlynguoithamgia = new Quanlynguoithamgia();
         quanlythongbao = new Quanlythongbao();
+        quanlycongviec = new Quanlycongviec();
 
         noiDung.setBackground(Theme.BG);
         noiDung.add(trangchu.getMainPanel(), TRANG_CHU);
@@ -74,6 +77,7 @@ public class DashboardCanbo {
         noiDung.add(quanlytailieusukien.getMainPanel(), TAI_LIEU);
         noiDung.add(quanlynguoithamgia.getMainPanel(), NGUOI_THAM_GIA);
         noiDung.add(quanlythongbao.getMainPanel(), THONG_BAO);
+        noiDung.add(quanlycongviec.getMainPanel(), CONG_VIEC);
 
         // 2. Ghép khung: Cột trái full-height Sidebar + Vùng phải (Thanh trên trắng + Nội dung)
         mainPanel.add(taoSidebar(), BorderLayout.WEST);
@@ -132,6 +136,7 @@ public class DashboardCanbo {
         themMuc(menu, TRANG_CHU, "Trang chủ", Icons.HOME);
         themMuc(menu, BAO_CAO, "Lập báo cáo và thống kê", Icons.CHART);
         themMuc(menu, TAI_LIEU, "Quản lý tài liệu sự kiện", Icons.FILE);
+        themMuc(menu, CONG_VIEC, "Quản lý công việc", Icons.LIST);
         themMuc(menu, NGUOI_THAM_GIA, "Quản lý người tham gia", Icons.USERS);
         themMuc(menu, THONG_BAO, "Quản lý thông báo", Icons.BELL);
 
@@ -284,6 +289,8 @@ public class DashboardCanbo {
 
         if (TRANG_CHU.equals(ma)) {
             trangchu.taiLai();
+        } else if (CONG_VIEC.equals(ma)) {
+            quanlycongviec.taiLai();
         }
         mainPanel.revalidate();
         mainPanel.repaint();
