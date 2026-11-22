@@ -1,8 +1,11 @@
 package com.eventmanager.backend.controller;
 
+import com.eventmanager.backend.admin.common.DuLieu;
+import com.eventmanager.backend.admin.service.SuKienAdminService;
 import com.eventmanager.backend.entity.SuKien;
 import com.eventmanager.backend.repository.DangKySuKienRepository;
 import com.eventmanager.backend.repository.SuKienRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +21,10 @@ import java.util.Map;
  * Use case "Tra cứu sự kiện": xem danh sách, tìm kiếm, lọc theo ngày, xem chi tiết.
  */
 @RestController
-@RequestMapping("/api/su-kien")
 public class SuKienController {
+
+    @Autowired
+    private SuKienAdminService suKienAdminService;
 
     @Autowired
     private SuKienRepository repo;
@@ -29,7 +34,7 @@ public class SuKienController {
 
     // Xem danh sách + tìm kiếm + lọc theo ngày (tham số nào bỏ trống thì không lọc theo nó)
     // VD: GET /api/su-kien/danh-sach?tuKhoa=hiến máu&tuNgay=2026-11-01&denNgay=2026-11-30
-    @GetMapping("/danh-sach")
+    @GetMapping("/api/su-kien/danh-sach")
     public List<Map<String, Object>> getDanhSach(
             @RequestParam(defaultValue = "") String tuKhoa,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate tuNgay,
@@ -79,7 +84,7 @@ public class SuKienController {
     }
 
     // Xem chi tiết sự kiện, kèm số người đã đăng ký
-    @GetMapping("/{id}")
+    @GetMapping("/api/su-kien/{id}")
     public ResponseEntity<?> getChiTiet(@PathVariable Long id) {
         SuKien sk = repo.findById(id).orElse(null);
         if (sk == null || !daDuyet(sk)) {
@@ -91,5 +96,66 @@ public class SuKienController {
         kq.put("suKien", thongTin);
         kq.put("soDaDangKy", thongTin.get("soDaDangKy"));
         return ResponseEntity.ok(kq);
+    }
+
+    // GET /api/admin/su-kien?tuKhoa=&trangThai=Sắp diễn ra&trangThaiDuyet=Chờ duyệt
+    @GetMapping("/api/admin/su-kien")
+    public List<Map<String, Object>> danhSach(@RequestParam(defaultValue = "") String tuKhoa,
+                                              @RequestParam(defaultValue = "") String trangThai,
+                                              @RequestParam(defaultValue = "") String trangThaiDuyet) {
+        return suKienAdminService.danhSach(tuKhoa, trangThai, trangThaiDuyet);
+    }
+
+    @GetMapping("/api/admin/su-kien/{id}")
+    public Map<String, Object> chiTiet(@PathVariable Long id) {
+        return suKienAdminService.chiTiet(id);
+    }
+
+    // POST /api/admin/su-kien?nguoiTao=admin
+    // Body: {tenSuKien, diaDiem, thoiGianBatDau:"15/11/2026 08:00", thoiGianKetThuc, soLuongToiDa, donViToChuc, moTa}
+    @PostMapping("/api/admin/su-kien")
+    public Map<String, Object> taoMoi(@RequestBody Map<String, Object> body,
+                                      @RequestParam(defaultValue = "admin") String nguoiTao) {
+        return suKienAdminService.taoMoi(body, nguoiTao);
+    }
+
+    @PutMapping("/api/admin/su-kien/{id}")
+    public Map<String, Object> capNhat(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+        return suKienAdminService.capNhat(id, body);
+    }
+
+    @PutMapping("/api/admin/su-kien/{id}/duyet")
+    public Map<String, String> duyet(@PathVariable Long id) {
+        suKienAdminService.duyetKeHoach(id);
+        return Map.of("message", "Duyệt kế hoạch thành công");
+    }
+
+    @PutMapping("/api/admin/su-kien/{id}/tu-choi")
+    public Map<String, String> tuChoi(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+        suKienAdminService.tuChoiKeHoach(id, DuLieu.chuoi(body, "lyDo"));
+        return Map.of("message", "Đã từ chối kế hoạch");
+    }
+
+    @GetMapping("/api/admin/su-kien/{id}/theo-doi")
+    public Map<String, Object> theoDoi(@PathVariable Long id) {
+        return suKienAdminService.theoDoi(id);
+    }
+
+    @GetMapping("/api/admin/su-kien/{id}/phan-cong")
+    public List<Map<String, Object>> dsPhanCong(@PathVariable Long id) {
+        return suKienAdminService.dsPhanCong(id);
+    }
+
+    // POST /api/admin/su-kien/3/phan-cong   Body: {"tenDangNhap": "canbo01", "vaiTroPhuTrach": "Hậu cần"}
+    @PostMapping("/api/admin/su-kien/{id}/phan-cong")
+    public Map<String, String> phanCong(@PathVariable Long id, @RequestBody Map<String, Object> body) {
+        suKienAdminService.phanCong(id, DuLieu.chuoi(body, "tenDangNhap"), DuLieu.chuoi(body, "vaiTroPhuTrach"));
+        return Map.of("message", "Phân công thành công");
+    }
+
+    @DeleteMapping("/api/admin/su-kien/phan-cong/{phanCongId}")
+    public Map<String, String> huyPhanCong(@PathVariable Long phanCongId) {
+        suKienAdminService.huyPhanCong(phanCongId);
+        return Map.of("message", "Đã hủy phân công");
     }
 }
