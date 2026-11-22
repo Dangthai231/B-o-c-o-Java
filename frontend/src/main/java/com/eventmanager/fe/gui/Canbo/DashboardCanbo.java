@@ -68,7 +68,7 @@ public class DashboardCanbo {
         lapbaocaothongke = new Lapbaocaothongke();
         quanlytailieusukien = new Quanlytailieusukien();
         quanlynguoithamgia = new Quanlynguoithamgia();
-        quanlythongbao = new Quanlythongbao();
+        quanlythongbao = new Quanlythongbao(currentUsername);
         quanlycongviec = new Quanlycongviec();
 
         noiDung.setBackground(Theme.BG);

@@ -1,9 +1,8 @@
 package com.eventmanager.fe.gui.Canbo;
 
-import com.google.gson.JsonArray;
+import com.eventmanager.fe.gui.Admin.common.Api;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -13,13 +12,17 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * Quản lý thông báo của Cán bộ, liên kết với Admin và Sinh viên:
+ * Cán bộ tạo thông báo -> lưu DB ở trạng thái "Chờ duyệt" -> Admin duyệt / đăng
+ * -> Sinh viên thấy (nếu gửi cho "Tất cả người tham gia" hoặc "Sinh viên").
+ * Trạng thái do Admin quyết định nên ô Trạng thái chỉ để xem.
+ */
 public class Quanlythongbao {
     private JPanel mainPanel;
     private JTextField txtTimKiem;
@@ -39,7 +42,16 @@ public class Quanlythongbao {
     private JButton btnXoa;
     private JButton btnLamMoi;
 
+    private final String tenDangNhap;
+    // Dữ liệu đầy đủ của từng dòng trong bảng (cùng thứ tự với tableModel), giữ id và nội dung
+    private final List<JsonObject> dsThongBao = new ArrayList<>();
+
     public Quanlythongbao() {
+        this("canbo01");
+    }
+
+    public Quanlythongbao(String tenDangNhap) {
+        this.tenDangNhap = tenDangNhap == null || tenDangNhap.isBlank() ? "canbo01" : tenDangNhap;
         initUI();
         loadData();
     }
@@ -180,7 +192,7 @@ public class Quanlythongbao {
         lblDoiTuong.setPreferredSize(new Dimension(80, 25));
         rowDoiTuong.add(lblDoiTuong, BorderLayout.WEST);
 
-        cbDoiTuong = new JComboBox<>(new String[]{"Tất cả người tham gia", "Ban tổ chức", "Đại biểu", "Khách mời", "Sinh viên"});
+        cbDoiTuong = new JComboBox<>(new String[]{"Tất cả người tham gia", "Sinh viên", "Ban tổ chức", "Cán bộ sự kiện", "Đại biểu", "Khách mời"});
         cbDoiTuong.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         cbDoiTuong.setBackground(Color.WHITE);
         rowDoiTuong.add(cbDoiTuong, BorderLayout.CENTER);
@@ -199,6 +211,7 @@ public class Quanlythongbao {
         rowNgayGui.add(lblNgayGui, BorderLayout.WEST);
 
         txtNgayGui = new JTextField(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        txtNgayGui.setEditable(false); // hệ thống tự ghi ngày gửi
         txtNgayGui.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         txtNgayGui.setBorder(new CompoundBorder(new LineBorder(new Color(180, 180, 180)), new EmptyBorder(3, 6, 3, 6)));
         rowNgayGui.add(txtNgayGui, BorderLayout.CENTER);
@@ -216,7 +229,9 @@ public class Quanlythongbao {
         lblTrangThai.setPreferredSize(new Dimension(80, 25));
         rowTrangThai.add(lblTrangThai, BorderLayout.WEST);
 
-        cbTrangThai = new JComboBox<>(new String[]{"Đã gửi", "Nháp", "Đã hủy"});
+        cbTrangThai = new JComboBox<>(new String[]{"Chờ duyệt", "Đã duyệt", "Đã đăng", "Từ chối", "Đã gỡ"});
+        cbTrangThai.setEnabled(false); // trạng thái do Admin duyệt, cán bộ chỉ xem
+        cbTrangThai.setToolTipText("Thông báo mới tạo sẽ ở trạng thái Chờ duyệt cho tới khi Admin duyệt");
         cbTrangThai.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         cbTrangThai.setBackground(Color.WHITE);
         rowTrangThai.add(cbTrangThai, BorderLayout.CENTER);
@@ -243,23 +258,25 @@ public class Quanlythongbao {
         contentGrid.add(rightPanel);
         mainPanel.add(contentGrid, BorderLayout.CENTER);
 
-        // Selection Listener
+        // Selection Listener: đổ thông báo đang chọn lên form (cả nội dung, lý do từ chối nếu có)
         tableThongBao.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
-                int row = tableThongBao.getSelectedRow();
-                if (row >= 0) {
-                    int modelRow = tableThongBao.convertRowIndexToModel(row);
-                    txtTieuDe.setText((String) tableModel.getValueAt(modelRow, 1));
-                    String dt = (String) tableModel.getValueAt(modelRow, 2);
+                JsonObject tb = thongBaoDangChon();
+                if (tb != null) {
+                    txtTieuDe.setText(Api.s(tb, "tieuDe"));
+                    txtNoiDung.setText(Api.s(tb, "noiDung"));
+                    txtNoiDung.setCaretPosition(0);
+                    String dt = Api.s(tb, "doiTuong");
                     for (int i = 0; i < cbDoiTuong.getItemCount(); i++) {
                         if (cbDoiTuong.getItemAt(i).equalsIgnoreCase(dt)) {
                             cbDoiTuong.setSelectedIndex(i);
                             break;
                         }
                     }
-                    txtNgayGui.setText((String) tableModel.getValueAt(modelRow, 3));
-                    String tt = (String) tableModel.getValueAt(modelRow, 4);
-                    cbTrangThai.setSelectedItem(tt);
+                    txtNgayGui.setText(Api.s(tb, "ngayGui"));
+                    cbTrangThai.setSelectedItem(Api.s(tb, "trangThai"));
+                    String lyDo = Api.s(tb, "lyDoTuChoi");
+                    cbTrangThai.setToolTipText(lyDo.isEmpty() ? null : "Lý do Admin từ chối: " + lyDo);
                 }
             }
         });
@@ -274,52 +291,54 @@ public class Quanlythongbao {
             }
         });
 
-        // Create Action
+        // Create Action: POST /api/admin/thong-bao -> lưu DB ở trạng thái "Chờ duyệt" để Admin duyệt
         btnTaoThongBao.addActionListener(e -> {
-            String tieuDe = txtTieuDe.getText().trim();
-            if (tieuDe.isEmpty()) {
-                JOptionPane.showMessageDialog(mainPanel, "Vui lòng nhập tiêu đề thông báo!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            JsonObject body = layDuLieuForm();
+            if (body == null) return;
+            Api.chayNen(mainPanel, () -> Api.post("/api/admin/thong-bao?nguoiTao=" + Api.e(tenDangNhap), body), kq -> {
+                JOptionPane.showMessageDialog(mainPanel, "Đã tạo thông báo " + Api.s(Api.obj(kq), "maThongBao")
+                        + " và gửi Admin duyệt.\nSau khi Admin duyệt, người nhận sẽ thấy thông báo.", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                resetForm();
+                loadData();
+            });
+        });
+
+        // Update Action: PUT /api/admin/thong-bao/{id} (thông báo bị từ chối, sửa xong sẽ quay lại Chờ duyệt)
+        btnCapNhat.addActionListener(e -> {
+            JsonObject tb = thongBaoDangChon();
+            if (tb == null) {
+                JOptionPane.showMessageDialog(mainPanel, "Vui lòng chọn thông báo cần cập nhật từ danh sách!", "Thông báo", JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            int newNum = tableModel.getRowCount() + 35;
-            String newMa = "TB0" + newNum;
-            tableModel.insertRow(0, new Object[]{
-                    newMa,
-                    tieuDe,
-                    cbDoiTuong.getSelectedItem(),
-                    txtNgayGui.getText().trim(),
-                    cbTrangThai.getSelectedItem()
+            JsonObject body = layDuLieuForm();
+            if (body == null) return;
+            Api.chayNen(mainPanel, () -> Api.put("/api/admin/thong-bao/" + Api.n(tb, "id"), body), kq -> {
+                String tt = Api.s(Api.obj(kq), "trangThai");
+                JOptionPane.showMessageDialog(mainPanel, "Cập nhật thông báo thành công! Trạng thái: " + tt,
+                        "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                loadData();
             });
-            JOptionPane.showMessageDialog(mainPanel, "Tạo thông báo " + newMa + " thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
         });
 
-        // Update Action
-        btnCapNhat.addActionListener(e -> {
-            int row = tableThongBao.getSelectedRow();
-            if (row >= 0) {
-                int modelRow = tableThongBao.convertRowIndexToModel(row);
-                tableModel.setValueAt(txtTieuDe.getText().trim(), modelRow, 1);
-                tableModel.setValueAt(cbDoiTuong.getSelectedItem(), modelRow, 2);
-                tableModel.setValueAt(txtNgayGui.getText().trim(), modelRow, 3);
-                tableModel.setValueAt(cbTrangThai.getSelectedItem(), modelRow, 4);
-                JOptionPane.showMessageDialog(mainPanel, "Cập nhật thông báo thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(mainPanel, "Vui lòng chọn thông báo cần cập nhật từ danh sách!", "Thông báo", JOptionPane.WARNING_MESSAGE);
-            }
-        });
-
-        // Delete Action
+        // Delete Action: chỉ xóa được thông báo chưa được duyệt (Chờ duyệt / Từ chối)
         btnXoa.addActionListener(e -> {
-            int row = tableThongBao.getSelectedRow();
-            if (row >= 0) {
-                int modelRow = tableThongBao.convertRowIndexToModel(row);
-                int confirm = JOptionPane.showConfirmDialog(mainPanel, "Bạn có chắc muốn xóa thông báo này không?", "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
-                if (confirm == JOptionPane.YES_OPTION) {
-                    tableModel.removeRow(modelRow);
-                    resetForm();
-                }
-            } else {
+            JsonObject tb = thongBaoDangChon();
+            if (tb == null) {
                 JOptionPane.showMessageDialog(mainPanel, "Vui lòng chọn thông báo cần xóa!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            String tt = Api.s(tb, "trangThai");
+            if (!"Chờ duyệt".equals(tt) && !"Từ chối".equals(tt)) {
+                JOptionPane.showMessageDialog(mainPanel, "Thông báo đã được Admin duyệt (" + tt + "), không thể xóa.\nHãy nhờ Admin gỡ thông báo.",
+                        "Thông báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            int confirm = JOptionPane.showConfirmDialog(mainPanel, "Bạn có chắc muốn xóa thông báo này không?", "Xác nhận xóa", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                Api.chayNen(mainPanel, () -> Api.delete("/api/thong-bao/xoa/" + Api.n(tb, "id")), kq -> {
+                    resetForm();
+                    loadData();
+                });
             }
         });
 
@@ -337,8 +356,31 @@ public class Quanlythongbao {
         txtNoiDung.setText("");
         cbDoiTuong.setSelectedIndex(0);
         cbTrangThai.setSelectedIndex(0);
+        cbTrangThai.setToolTipText("Thông báo mới tạo sẽ ở trạng thái Chờ duyệt cho tới khi Admin duyệt");
         txtNgayGui.setText(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         tableThongBao.clearSelection();
+    }
+
+    private JsonObject thongBaoDangChon() {
+        int row = tableThongBao.getSelectedRow();
+        if (row < 0) return null;
+        int modelRow = tableThongBao.convertRowIndexToModel(row);
+        return modelRow < dsThongBao.size() ? dsThongBao.get(modelRow) : null;
+    }
+
+    /** Kiểm tra form rồi tạo body {tieuDe, noiDung, doiTuong}; thiếu thì báo và trả null. */
+    private JsonObject layDuLieuForm() {
+        String tieuDe = txtTieuDe.getText().trim();
+        String noiDung = txtNoiDung.getText().trim();
+        if (tieuDe.isEmpty() || noiDung.isEmpty()) {
+            JOptionPane.showMessageDialog(mainPanel, "Vui lòng nhập đủ tiêu đề và nội dung thông báo!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            return null;
+        }
+        JsonObject body = new JsonObject();
+        body.addProperty("tieuDe", tieuDe);
+        body.addProperty("noiDung", noiDung);
+        body.addProperty("doiTuong", (String) cbDoiTuong.getSelectedItem());
+        return body;
     }
 
     private JButton createButton(String text) {
@@ -369,70 +411,18 @@ public class Quanlythongbao {
         return btn;
     }
 
+    /** GET /api/admin/thong-bao: toàn bộ thông báo trong DB, trạng thái theo kết quả Admin duyệt. */
     private void loadData() {
-        tableModel.setRowCount(0);
-
-        // Sample data matching WinForms screenshot exactly
-        Object[][] data = {
-                {"TB034", "A", "Đại biểu", "25/10/2026", "Đã gửi"},
-                {"TB033", "A", "Đại biểu", "25/10/2026", "Nháp"},
-                {"TB031", "Thong bao su kien", "Đại biểu", "25/10/2026", "Nháp"},
-                {"TB030", "Thông báo tổng kết", "Tất cả người tham gia", "19/10/2026", "Đã gửi"},
-                {"TB029", "Họp chuẩn bị đại hội", "Ban tổ chức", "15/10/2026", "Đã gửi"},
-                {"TB028", "Thông báo lịch trình", "Tất cả người tham gia", "01/10/2026", "Đã gửi"},
-                {"TB027", "Hủy sự kiện đột xuất", "Tất cả người tham gia", "22/09/2026", "Đã hủy"},
-                {"TB026", "Hướng dẫn điểm danh", "Ban tổ chức", "12/09/2026", "Đã gửi"},
-                {"TB025", "Thông báo địa điểm", "Tất cả người tham gia", "01/09/2026", "Đã gửi"},
-                {"TB024", "Lịch đón tiếp khách mời", "Ban tổ chức", "15/08/2026", "Đã gửi"},
-                {"TB023", "Nháp: Thư ngỏ", "Tất cả người tham gia", "01/08/2026", "Nháp"},
-                {"TB022", "Cung cấp tài liệu", "Đại biểu", "10/07/2026", "Đã gửi"},
-                {"TB021", "Kế hoạch tuần mới", "Tất cả người tham gia", "05/07/2026", "Đã gửi"},
-                {"TB020", "Tổng kết chiến dịch", "Ban tổ chức", "30/06/2026", "Đã gửi"},
-                {"TB019", "Hủy buổi giao lưu", "Khách mời", "14/06/2026", "Đã hủy"},
-                {"TB018", "Tập huấn cán bộ", "Tất cả người tham gia", "08/06/2026", "Đã gửi"},
-                {"TB017", "Công bố kết quả", "Tất cả người tham gia", "01/06/2026", "Đã gửi"},
-                {"TB016", "Nháp: Thông báo nội bộ", "Tất cả người tham gia", "25/05/2026", "Nháp"},
-                {"TB015", "Nhắc nhở nộp báo cáo", "Ban tổ chức", "18/05/2026", "Đã gửi"}
-        };
-
-        for (Object[] row : data) {
-            tableModel.addRow(row);
-        }
-
-        // Try load from backend if available
-        SwingWorker<Void, Void> worker = new SwingWorker<>() {
-            @Override
-            protected Void doInBackground() {
-                try {
-                    HttpClient client = HttpClient.newHttpClient();
-                    HttpRequest request = HttpRequest.newBuilder()
-                            .uri(URI.create("http://localhost:8080/api/thong-bao/danh-sach"))
-                            .GET()
-                            .build();
-
-                    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                    if (response.statusCode() == 200) {
-                        JsonArray arr = JsonParser.parseString(response.body()).getAsJsonArray();
-                        if (arr.size() > 0) {
-                            SwingUtilities.invokeLater(() -> {
-                                tableModel.setRowCount(0);
-                                for (JsonElement elem : arr) {
-                                    JsonObject obj = elem.getAsJsonObject();
-                                    String ma = obj.has("maThongBao") && !obj.get("maThongBao").isJsonNull() ? obj.get("maThongBao").getAsString() : "TB0" + obj.get("id").getAsLong();
-                                    String tieuDe = obj.has("tieuDe") && !obj.get("tieuDe").isJsonNull() ? obj.get("tieuDe").getAsString() : "";
-                                    String doiTuong = obj.has("doiTuong") && !obj.get("doiTuong").isJsonNull() ? obj.get("doiTuong").getAsString() : "Tất cả";
-                                    String ngay = obj.has("ngayGui") && !obj.get("ngayGui").isJsonNull() ? obj.get("ngayGui").getAsString() : "25/10/2026";
-                                    String tt = obj.has("trangThai") && !obj.get("trangThai").isJsonNull() ? obj.get("trangThai").getAsString() : "Đã gửi";
-                                    tableModel.addRow(new Object[]{ma, tieuDe, doiTuong, ngay, tt});
-                                }
-                            });
-                        }
-                    }
-                } catch (Exception ignored) {}
-                return null;
+        Api.chayNen(mainPanel, () -> Api.get("/api/admin/thong-bao"), kq -> {
+            tableModel.setRowCount(0);
+            dsThongBao.clear();
+            for (JsonElement el : Api.arr(kq)) {
+                JsonObject tb = el.getAsJsonObject();
+                dsThongBao.add(tb);
+                tableModel.addRow(new Object[]{Api.s(tb, "maThongBao"), Api.s(tb, "tieuDe"),
+                        Api.s(tb, "doiTuong"), Api.s(tb, "ngayGui"), Api.s(tb, "trangThai")});
             }
-        };
-        worker.execute();
+        });
     }
 
     public JPanel getMainPanel() {

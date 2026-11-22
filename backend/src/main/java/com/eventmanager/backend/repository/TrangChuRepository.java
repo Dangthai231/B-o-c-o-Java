@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,9 +15,9 @@ public class TrangChuRepository {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    public int getCount(String sql) {
+    public int getCount(String sql, Object... thamSo) {
         try {
-            Integer count = jdbcTemplate.queryForObject(sql, Integer.class);
+            Integer count = jdbcTemplate.queryForObject(sql, Integer.class, thamSo);
             return count != null ? count : 0;
         } catch (Exception e) {
             return 0;
@@ -56,39 +58,41 @@ public class TrangChuRepository {
         return map;
     }
 
-    public Map<String, Object> getThongKeBaoCao() {
+    // Báo cáo cho Cán bộ: tính từ dữ liệu thật (sự kiện Admin đã duyệt + lượt đăng ký / điểm danh của sinh viên).
+    // tuNgay / denNgay (có thể null): chỉ tính sự kiện bắt đầu trong khoảng đó và các lượt đăng ký của chúng.
+    public Map<String, Object> getThongKeBaoCao(LocalDate tuNgay, LocalDate denNgay) {
         Map<String, Object> map = new HashMap<>();
+        LocalDateTime tu = tuNgay != null ? tuNgay.atStartOfDay() : LocalDateTime.of(1900, 1, 1, 0, 0);
+        LocalDateTime den = denNgay != null ? denNgay.plusDays(1).atStartOfDay().minusSeconds(1)
+                : LocalDateTime.of(2999, 12, 31, 23, 59);
+        boolean coLoc = tuNgay != null || denNgay != null;
 
-        int tongSuKien = getCount("SELECT COUNT(*) FROM events");
-        if (tongSuKien == 0) tongSuKien = 12;
+        String daDuyet = "(s.trang_thai_duyet IS NULL OR s.trang_thai_duyet = 'Đã duyệt') AND s.thoi_gian_bat_dau BETWEEN ? AND ?";
+        String conHieuLuc = daDuyet + " AND s.trang_thai <> 'Đã hủy'";
 
-        int dangDienRa = getCount("SELECT COUNT(*) FROM events WHERE Status = 'Ongoing'");
-        if (dangDienRa == 0) dangDienRa = 3;
+        int tongSuKien = getCount("SELECT COUNT(*) FROM su_kien s WHERE " + daDuyet, tu, den);
+        int dangDienRa = getCount("SELECT COUNT(*) FROM su_kien s WHERE " + conHieuLuc
+                + " AND NOW() BETWEEN s.thoi_gian_bat_dau AND s.thoi_gian_ket_thuc", tu, den);
+        int hoanThanh = getCount("SELECT COUNT(*) FROM su_kien s WHERE " + conHieuLuc + " AND s.thoi_gian_ket_thuc < NOW()", tu, den);
+        int daHuy = getCount("SELECT COUNT(*) FROM su_kien s WHERE " + daDuyet + " AND s.trang_thai = 'Đã hủy'", tu, den);
 
-        int hoanThanh = getCount("SELECT COUNT(*) FROM events WHERE Status = 'Completed'");
-        if (hoanThanh == 0) hoanThanh = 7;
+        // Lượt đăng ký còn hiệu lực và số lượt cán bộ đã điểm danh "Đã tham gia" (của các sự kiện trên)
+        String dangKy = "SELECT COUNT(*) FROM dang_ky_su_kien d JOIN su_kien s ON s.id = d.su_kien_id WHERE " + daDuyet;
+        int tongThamGia = getCount(dangKy + " AND d.trang_thai <> 'Đã hủy'", tu, den);
+        int daThamDu = getCount(dangKy + " AND d.trang_thai = 'Đã tham gia'", tu, den);
+        int tyLe = tongThamGia > 0 ? (int) Math.round((double) daThamDu * 100 / tongThamGia) : 0;
 
-        int daHuy = getCount("SELECT COUNT(*) FROM events WHERE Status = 'Cancelled'");
-        if (daHuy == 0) daHuy = 2;
-
-        int tongThamGia = getCount("SELECT COUNT(*) FROM nguoi_tham_gia");
-        if (tongThamGia == 0) tongThamGia = 30;
-
-        int daThamDu = getCount("SELECT COUNT(*) FROM nguoi_tham_gia WHERE trang_thai_diem_danh LIKE '%Đã điểm danh%'");
-        if (daThamDu == 0) daThamDu = 16;
-
-        int tyLe = (tongThamGia > 0) ? (int) Math.round((double) daThamDu * 100 / tongThamGia) : 53;
-
-        // Monthly events
-        final int[] monthly = new int[]{1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 0, 0};
+        // Số sự kiện theo tháng: có lọc thì theo khoảng ngày đã chọn, không lọc thì trong năm nay
+        final int[] monthly = new int[12];
         try {
-            jdbcTemplate.query("SELECT MONTH(StartDate) AS thang, COUNT(*) AS sl FROM events GROUP BY MONTH(StartDate)", rs -> {
+            jdbcTemplate.query("SELECT MONTH(s.thoi_gian_bat_dau) AS thang, COUNT(*) AS sl FROM su_kien s WHERE " + daDuyet
+                    + (coLoc ? "" : " AND YEAR(s.thoi_gian_bat_dau) = YEAR(NOW())")
+                    + " GROUP BY MONTH(s.thoi_gian_bat_dau)", rs -> {
                 int thang = rs.getInt("thang");
-                int sl = rs.getInt("sl");
                 if (thang >= 1 && thang <= 12) {
-                    monthly[thang - 1] = sl;
+                    monthly[thang - 1] += rs.getInt("sl");
                 }
-            });
+            }, tu, den);
         } catch (Exception ignored) {
         }
 
