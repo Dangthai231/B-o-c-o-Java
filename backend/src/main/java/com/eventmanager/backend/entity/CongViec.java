@@ -20,6 +20,7 @@ public class CongViec {
     private String trangThai;   // "Chưa bắt đầu", "Đang thực hiện", "Hoàn thành", "Tạm hoãn"
     private Integer tienDo;     // 0-100
     private String nhanSu;      // Người được phân công
+    private String nguoiGiao;   // Ai giao việc: "admin" hoặc tài khoản cán bộ
 
     private Long suKienId;      // Liên kết với sự kiện
     private String tenSuKien;   // Cache tên sự kiện để hiển thị nhanh
@@ -58,6 +59,9 @@ public class CongViec {
 
     public String getNhanSu() { return nhanSu; }
     public void setNhanSu(String nhanSu) { this.nhanSu = nhanSu; }
+
+    public String getNguoiGiao() { return nguoiGiao; }
+    public void setNguoiGiao(String nguoiGiao) { this.nguoiGiao = nguoiGiao; }
 
     public Long getSuKienId() { return suKienId; }
     public void setSuKienId(Long suKienId) { this.suKienId = suKienId; }

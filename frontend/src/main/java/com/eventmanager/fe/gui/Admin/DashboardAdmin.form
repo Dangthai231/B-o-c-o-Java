@@ -62,7 +62,7 @@
             </properties>
             <border type="none" />
             <children>
-              <grid id="a253" layout-manager="GridLayoutManager" row-count="7" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="12" vgap="10">
+              <grid id="a253" layout-manager="GridLayoutManager" row-count="8" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="12" vgap="10">
                 <margin top="10" left="10" bottom="10" right="10" />
                 <constraints border-constraint="North" />
                 <properties>
@@ -184,9 +184,28 @@
                       <borderPainted value="false" />
                     </properties>
                   </component>
-                  <component id="a249" binding="btnCaiDat" class="javax.swing.JButton">
+                  <component id="a271" binding="btnCongViec" class="javax.swing.JButton">
                     <constraints>
                       <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="0" fill="1" />
+                    </constraints>
+                    <properties>
+                      <font name="Segoe UI" size="13" style="0" />
+                      <background color="-16045232" />
+                      <foreground color="-2628108" />
+                      <focusPainted value="false" />
+                      <preferredSize>
+                        <size width="220" height="40" />
+                      </preferredSize>
+                      <horizontalAlignment value="2" />
+                      <text value="Giao công việc" />
+                      <contentAreaFilled value="false" />
+                      <opaque value="true" />
+                      <borderPainted value="false" />
+                    </properties>
+                  </component>
+                  <component id="a249" binding="btnCaiDat" class="javax.swing.JButton">
+                    <constraints>
+                      <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="7" anchor="0" fill="1" />
                     </constraints>
                     <properties>
                       <font name="Segoe UI" size="13" style="0" />

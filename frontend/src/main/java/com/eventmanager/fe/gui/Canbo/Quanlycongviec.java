@@ -54,7 +54,15 @@ public class Quanlycongviec {
     private int trangHienTai = 0;
     private UI.PhanTrang phanTrang;
 
+    private final String tenDangNhap;   // cán bộ đang đăng nhập
+    private JCheckBox chkCuaToi;        // chỉ hiện việc được giao cho mình
+
     public Quanlycongviec() {
+        this("canbo01");
+    }
+
+    public Quanlycongviec(String tenDangNhap) {
+        this.tenDangNhap = (tenDangNhap == null || tenDangNhap.isBlank()) ? "canbo01" : tenDangNhap.trim();
         initUI();
     }
 
@@ -185,7 +193,13 @@ public class Quanlycongviec {
             @Override public void changedUpdate(DocumentEvent e) { locVaHienThi(); }
         });
 
-        thanhLoc.add(UI.hang(10, cbLocSuKien, oTim), BorderLayout.WEST);
+        chkCuaToi = new JCheckBox("Việc giao cho tôi");
+        chkCuaToi.setOpaque(false);
+        chkCuaToi.setFont(Theme.BODY);
+        chkCuaToi.setToolTipText("Chỉ hiện công việc Admin / cán bộ khác đã phân công cho " + tenDangNhap);
+        chkCuaToi.addActionListener(e -> locVaHienThi());
+
+        thanhLoc.add(UI.hang(10, cbLocSuKien, oTim, chkCuaToi), BorderLayout.WEST);
 
         JLabel lblGoiY = UI.nhan("Bấm các nút bên phải từng dòng để sửa, phân công hoặc cập nhật trạng thái",
                 Theme.SMALL, Theme.MUTED);
@@ -448,6 +462,7 @@ public class Quanlycongviec {
             JsonObject o = e.getAsJsonObject();
 
             if (!"Tất cả".equals(locTT) && !locTT.equals(Api.s(o, "trangThai"))) continue;
+            if (chkCuaToi.isSelected() && !laViecCuaToi(Api.s(o, "nhanSu"))) continue;
 
             if (locSK != null && locSK.id != null) {
                 long skId = Api.n(o, "suKienId");
@@ -463,6 +478,13 @@ public class Quanlycongviec {
             kq.add(o);
         }
         return kq;
+    }
+
+    /** nhanSu lưu dạng "Họ tên (canbo01)" hoặc "canbo01". */
+    private boolean laViecCuaToi(String nhanSu) {
+        String ns = nhanSu.toLowerCase();
+        String ten = tenDangNhap.toLowerCase();
+        return ns.equals(ten) || ns.contains("(" + ten + ")");
     }
 
     private void locVaHienThi() {
@@ -484,7 +506,9 @@ public class Quanlycongviec {
             JsonObject o = daLoc.get(i).getAsJsonObject();
             String tenCv = Api.s(o, "tenCongViec");
             String moTa = Api.s(o, "moTa");
-            String cotCongViec = moTa.isEmpty() ? tenCv : tenCv + "\n" + rutGon(moTa, 56);
+            String nguoiGiao = Api.s(o, "nguoiGiao");
+            String dong2 = "admin".equalsIgnoreCase(nguoiGiao) ? "[Admin giao] " + moTa : moTa;
+            String cotCongViec = dong2.isEmpty() ? tenCv : tenCv + "\n" + rutGon(dong2, 56);
             String tenSk = Api.s(o, "tenSuKien");
             String nhanSu = Api.s(o, "nhanSu");
             String hanChot = Api.s(o, "hanChot");

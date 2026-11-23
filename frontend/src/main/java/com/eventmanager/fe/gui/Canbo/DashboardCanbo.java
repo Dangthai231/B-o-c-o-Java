@@ -69,7 +69,7 @@ public class DashboardCanbo {
         quanlytailieusukien = new Quanlytailieusukien();
         quanlynguoithamgia = new Quanlynguoithamgia();
         quanlythongbao = new Quanlythongbao(currentUsername);
-        quanlycongviec = new Quanlycongviec();
+        quanlycongviec = new Quanlycongviec(currentUsername);
 
         noiDung.setBackground(Theme.BG);
         noiDung.add(trangchu.getMainPanel(), TRANG_CHU);

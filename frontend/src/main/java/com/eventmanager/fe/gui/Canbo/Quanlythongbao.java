@@ -19,7 +19,7 @@ import java.util.List;
 
 /**
  * Quản lý thông báo của Cán bộ, liên kết với Admin và Sinh viên:
- * Cán bộ tạo thông báo -> lưu DB ở trạng thái "Chờ duyệt" -> Admin duyệt / đăng
+ * Cán bộ tạo thông báo -> gửi thẳng ("Đã đăng") -> sinh viên thấy ngay trong mục Thông báo. Admin vẫn gỡ được.
  * -> Sinh viên thấy (nếu gửi cho "Tất cả người tham gia" hoặc "Sinh viên").
  * Trạng thái do Admin quyết định nên ô Trạng thái chỉ để xem.
  */
@@ -231,7 +231,7 @@ public class Quanlythongbao {
 
         cbTrangThai = new JComboBox<>(new String[]{"Chờ duyệt", "Đã duyệt", "Đã đăng", "Từ chối", "Đã gỡ"});
         cbTrangThai.setEnabled(false); // trạng thái do Admin duyệt, cán bộ chỉ xem
-        cbTrangThai.setToolTipText("Thông báo mới tạo sẽ ở trạng thái Chờ duyệt cho tới khi Admin duyệt");
+        cbTrangThai.setToolTipText("Thông báo cán bộ tạo sẽ được gửi ngay (Đã đăng)");
         cbTrangThai.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         cbTrangThai.setBackground(Color.WHITE);
         rowTrangThai.add(cbTrangThai, BorderLayout.CENTER);
@@ -291,13 +291,13 @@ public class Quanlythongbao {
             }
         });
 
-        // Create Action: POST /api/admin/thong-bao -> lưu DB ở trạng thái "Chờ duyệt" để Admin duyệt
+        // Create Action: POST /api/admin/thong-bao?guiNgay=true -> "Đã đăng", sinh viên thấy ngay
         btnTaoThongBao.addActionListener(e -> {
             JsonObject body = layDuLieuForm();
             if (body == null) return;
-            Api.chayNen(mainPanel, () -> Api.post("/api/admin/thong-bao?nguoiTao=" + Api.e(tenDangNhap), body), kq -> {
+            Api.chayNen(mainPanel, () -> Api.post("/api/admin/thong-bao?guiNgay=true&nguoiTao=" + Api.e(tenDangNhap), body), kq -> {
                 JOptionPane.showMessageDialog(mainPanel, "Đã tạo thông báo " + Api.s(Api.obj(kq), "maThongBao")
-                        + " và gửi Admin duyệt.\nSau khi Admin duyệt, người nhận sẽ thấy thông báo.", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                        + " và gửi tới " + Api.s(Api.obj(kq), "doiTuong") + ".\nSinh viên sẽ thấy ngay trong mục Thông báo.", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                 resetForm();
                 loadData();
             });
@@ -328,7 +328,8 @@ public class Quanlythongbao {
                 return;
             }
             String tt = Api.s(tb, "trangThai");
-            if (!"Chờ duyệt".equals(tt) && !"Từ chối".equals(tt)) {
+            boolean cuaToi = tenDangNhap.equalsIgnoreCase(Api.s(tb, "nguoiTao"));
+            if (!"Chờ duyệt".equals(tt) && !"Từ chối".equals(tt) && !cuaToi) {
                 JOptionPane.showMessageDialog(mainPanel, "Thông báo đã được Admin duyệt (" + tt + "), không thể xóa.\nHãy nhờ Admin gỡ thông báo.",
                         "Thông báo", JOptionPane.WARNING_MESSAGE);
                 return;
@@ -356,7 +357,7 @@ public class Quanlythongbao {
         txtNoiDung.setText("");
         cbDoiTuong.setSelectedIndex(0);
         cbTrangThai.setSelectedIndex(0);
-        cbTrangThai.setToolTipText("Thông báo mới tạo sẽ ở trạng thái Chờ duyệt cho tới khi Admin duyệt");
+        cbTrangThai.setToolTipText("Thông báo cán bộ tạo sẽ được gửi ngay (Đã đăng)");
         txtNgayGui.setText(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         tableThongBao.clearSelection();
     }

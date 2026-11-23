@@ -73,8 +73,9 @@ public class ThongBaoController {
     // Body: {tieuDe, noiDung, doiTuong}
     @PostMapping("/api/admin/thong-bao")
     public Map<String, Object> taoMoi(@RequestBody Map<String, Object> body,
-                                      @RequestParam(defaultValue = "admin") String nguoiTao) {
-        return thongBaoAdminService.taoMoi(body, nguoiTao);
+                                      @RequestParam(defaultValue = "admin") String nguoiTao,
+                                      @RequestParam(defaultValue = "false") boolean guiNgay) {
+        return thongBaoAdminService.taoMoi(body, nguoiTao, guiNgay);
     }
 
     @PutMapping("/api/admin/thong-bao/{id}")

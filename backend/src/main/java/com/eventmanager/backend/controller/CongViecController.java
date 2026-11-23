@@ -38,7 +38,16 @@ public class CongViecController {
     @GetMapping("/danh-sach")
     public List<CongViec> getDanhSach(
             @RequestParam(required = false) Long suKienId,
-            @RequestParam(required = false) String trangThai) {
+            @RequestParam(required = false) String trangThai,
+            @RequestParam(required = false) String nhanSu) {
+        // Việc giao cho 1 cán bộ: nhanSu lưu dạng "Họ tên (canbo01)" hoặc "canbo01"
+        if (nhanSu != null && !nhanSu.isBlank()) {
+            String ten = nhanSu.trim();
+            return repo.findAllByOrderByIdDesc().stream()
+                    .filter(cv -> cv.getNhanSu() != null
+                            && (cv.getNhanSu().equalsIgnoreCase(ten) || cv.getNhanSu().toLowerCase().contains("(" + ten.toLowerCase() + ")")))
+                    .toList();
+        }
         if (suKienId != null) {
             return repo.findBySuKienIdOrderByIdDesc(suKienId);
         }
@@ -112,6 +121,9 @@ public class CongViecController {
             cv.setMaCv(String.format("CV%03d", count));
         }
         dongBoTenSuKien(cv);
+        if (cv.getNguoiGiao() == null || cv.getNguoiGiao().isBlank()) {
+            cv.setNguoiGiao("Cán bộ");
+        }
         if (cv.getTrangThai() == null || cv.getTrangThai().isBlank()) {
             cv.setTrangThai("Chưa bắt đầu");
         }
