@@ -34,6 +34,9 @@ public abstract class TrangSinhVien extends JPanel {
         /** Mở trang Đánh giá, chọn sẵn sự kiện. */
         void danhGia(long suKienId);
 
+        /** Đếm lại thông báo chưa đọc trên chuông (sau khi sinh viên đọc thông báo). */
+        void capNhatChuong();
+
         String tenDangNhap();
     }
 }

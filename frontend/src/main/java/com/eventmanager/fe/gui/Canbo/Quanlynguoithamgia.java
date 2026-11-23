@@ -1,9 +1,8 @@
 package com.eventmanager.fe.gui.Canbo;
 
-import com.google.gson.JsonArray;
+import com.eventmanager.fe.gui.Admin.common.Api;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -14,11 +13,14 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * Quản lý người tham gia, liên kết với Sinh viên:
+ * danh sách lấy từ lượt đăng ký thật của sinh viên (bảng dang_ky_su_kien) theo từng sự kiện;
+ * "Lưu điểm danh" ghi vào DB nên sinh viên thấy trạng thái Đã tham gia / Vắng mặt ở "Sự kiện của tôi".
+ */
 public class Quanlynguoithamgia {
     private JPanel mainPanel;
     private JTextField txtTimkiem;
@@ -33,6 +35,20 @@ public class Quanlynguoithamgia {
     private JButton btnXemChiTiet;
     private JButton btnCapNhatDiemDanh;
     private JButton btnLamMoi;
+    private JComboBox<SuKienItem> cbSuKien;
+
+    // Dữ liệu từng dòng (cùng thứ tự tableModel) và giá trị điểm danh lúc tải, để biết dòng nào đã sửa
+    private final List<JsonObject> dsDangKy = new ArrayList<>();
+    private final List<String> diemDanhGoc = new ArrayList<>();
+
+    private static final String TAT_CA = "Tất cả sự kiện";
+
+    private record SuKienItem(long id, String ten) {
+        @Override
+        public String toString() {
+            return ten;
+        }
+    }
 
     public Quanlynguoithamgia() {
         initUI();
@@ -64,6 +80,17 @@ public class Quanlynguoithamgia {
         JPanel leftSearch = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         leftSearch.setBackground(Color.WHITE);
 
+        // Chọn sự kiện để xem / điểm danh sinh viên đã đăng ký sự kiện đó
+        JLabel lblSuKien = new JLabel("Sự kiện");
+        lblSuKien.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        leftSearch.add(lblSuKien);
+        cbSuKien = new JComboBox<>(new SuKienItem[]{new SuKienItem(0, TAT_CA)});
+        cbSuKien.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        cbSuKien.setBackground(Color.WHITE);
+        cbSuKien.setPreferredSize(new Dimension(240, 28));
+        cbSuKien.addActionListener(e -> loadData());
+        leftSearch.add(cbSuKien);
+
         JLabel lblSearch = new JLabel("Tìm kiếm");
         lblSearch.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         leftSearch.add(lblSearch);
@@ -84,15 +111,15 @@ public class Quanlynguoithamgia {
         JPanel rightStats = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 4));
         rightStats.setBackground(Color.WHITE);
 
-        lblTongSo = new JLabel("Tổng: 30");
+        lblTongSo = new JLabel("Tổng: 0");
         lblTongSo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         rightStats.add(lblTongSo);
 
-        lblVangMat = new JLabel("Đã điểm danh Vắng: 6");
+        lblVangMat = new JLabel("Đã điểm danh Vắng: 0");
         lblVangMat.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         rightStats.add(lblVangMat);
 
-        lblChuaDiemDanh = new JLabel("Chưa điểm danh: 8");
+        lblChuaDiemDanh = new JLabel("Chưa điểm danh: 0");
         lblChuaDiemDanh.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         rightStats.add(lblChuaDiemDanh);
 
@@ -111,11 +138,12 @@ public class Quanlynguoithamgia {
                 new Font("Segoe UI", Font.PLAIN, 13)
         ));
 
-        String[] columns = {"Mã", "Họ tên", "Email", "Số điện thoại", "Vai trò", "Điểm danh", "Trạng thái"};
+        String[] columns = {"Mã SV", "Họ tên", "Email", "Số điện thoại", "Sự kiện", "Điểm danh", "Trạng thái"};
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int col) {
-                return col == 5 || col == 6; // Allow editing status directly or via action
+                // Chỉ sửa cột Điểm danh; sinh viên đã hủy đăng ký thì không điểm danh
+                return col == 5 && !"Đã hủy".equals(getValueAt(row, 6));
             }
         };
 
@@ -180,17 +208,14 @@ public class Quanlynguoithamgia {
                     c.setBackground(Color.WHITE);
                     c.setForeground(new Color(40, 40, 40));
                 }
-                setText(text + "  ▼");
+                setText(text);
                 return c;
             }
         });
 
-        // ComboBox editors for dropdown editing
+        // Điểm danh chọn bằng hộp xổ xuống; Trạng thái (đã xác nhận / đã hủy) do sinh viên đăng ký / hủy
         JComboBox<String> cbDiemDanh = new JComboBox<>(new String[]{"Đã điểm danh", "Vắng", "Chưa điểm danh"});
         table.getColumnModel().getColumn(5).setCellEditor(new DefaultCellEditor(cbDiemDanh));
-
-        JComboBox<String> cbTrangThai = new JComboBox<>(new String[]{"Đã xác nhận", "Chưa xác nhận", "Đã hủy"});
-        table.getColumnModel().getColumn(6).setCellEditor(new DefaultCellEditor(cbTrangThai));
 
         JScrollPane scrollPane = new JScrollPane(table);
         scrollPane.getViewport().setBackground(Color.WHITE);
@@ -234,28 +259,47 @@ public class Quanlynguoithamgia {
             int row = table.getSelectedRow();
             if (row >= 0) {
                 int modelRow = table.convertRowIndexToModel(row);
-                String ma = (String) tableModel.getValueAt(modelRow, 0);
-                String ten = (String) tableModel.getValueAt(modelRow, 1);
-                String email = (String) tableModel.getValueAt(modelRow, 2);
-                String sdt = (String) tableModel.getValueAt(modelRow, 3);
-                String vaiTro = (String) tableModel.getValueAt(modelRow, 4);
-                String diemDanh = (String) tableModel.getValueAt(modelRow, 5);
-                String trangThai = (String) tableModel.getValueAt(modelRow, 6);
-
-                String msg = String.format("Mã: %s\nHọ tên: %s\nEmail: %s\nSố điện thoại: %s\nVai trò: %s\nĐiểm danh: %s\nTrạng thái: %s",
-                        ma, ten, email, sdt, vaiTro, diemDanh, trangThai);
+                JsonObject dk = dsDangKy.get(modelRow);
+                String msg = String.format("Mã SV: %s\nHọ tên: %s\nTài khoản: %s\nLớp: %s\nEmail: %s\nSố điện thoại: %s\n\nSự kiện: %s\nNgày đăng ký: %s\nĐiểm danh: %s\nTrạng thái: %s",
+                        Api.s(dk, "maSinhVien"), Api.s(dk, "hoTen"), Api.s(dk, "tenDangNhap"), Api.s(dk, "lop"),
+                        Api.s(dk, "email"), Api.s(dk, "soDienThoai"), Api.s(dk, "tenSuKien"),
+                        Api.s(dk, "ngayDangKy").replace('T', ' '),
+                        tableModel.getValueAt(modelRow, 5), tableModel.getValueAt(modelRow, 6));
                 JOptionPane.showMessageDialog(mainPanel, msg, "Chi tiết người tham gia", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 JOptionPane.showMessageDialog(mainPanel, "Vui lòng chọn một người tham gia trong danh sách!", "Thông báo", JOptionPane.WARNING_MESSAGE);
             }
         });
 
+        // Lưu các dòng đã đổi điểm danh: PUT /api/dang-ky/diem-danh/{id}
         btnCapNhatDiemDanh.addActionListener(e -> {
             if (table.isEditing()) {
                 table.getCellEditor().stopCellEditing();
             }
-            updateStats();
-            JOptionPane.showMessageDialog(mainPanel, "Đã lưu thông tin điểm danh thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            List<long[]> canLuu = new ArrayList<>();   // {id, chỉ số dòng}
+            for (int i = 0; i < tableModel.getRowCount(); i++) {
+                if (!String.valueOf(tableModel.getValueAt(i, 5)).equals(diemDanhGoc.get(i))) {
+                    canLuu.add(new long[]{Api.n(dsDangKy.get(i), "id"), i});
+                }
+            }
+            if (canLuu.isEmpty()) {
+                JOptionPane.showMessageDialog(mainPanel, "Chưa có thay đổi điểm danh nào để lưu.", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            List<String> giaTri = new ArrayList<>();
+            for (long[] r : canLuu) giaTri.add(sangTrangThaiDangKy(String.valueOf(tableModel.getValueAt((int) r[1], 5))));
+            Api.chayNen(mainPanel, () -> {
+                for (int i = 0; i < canLuu.size(); i++) {
+                    JsonObject body = new JsonObject();
+                    body.addProperty("trangThai", giaTri.get(i));
+                    Api.put("/api/dang-ky/diem-danh/" + canLuu.get(i)[0], body);
+                }
+                return canLuu.size();
+            }, n -> {
+                JOptionPane.showMessageDialog(mainPanel, "Đã lưu điểm danh cho " + n + " sinh viên.\nSinh viên sẽ thấy trạng thái mới ở mục Sự kiện của tôi.",
+                        "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                loadData();
+            });
         });
 
         btnLamMoi.addActionListener(e -> {
@@ -295,73 +339,59 @@ public class Quanlynguoithamgia {
         lblChuaDiemDanh.setText("Chưa điểm danh: " + chua);
     }
 
+    /**
+     * Tải danh sách sự kiện (lần đầu) và sinh viên đăng ký: GET /api/dang-ky/theo-su-kien[?suKienId=].
+     * Trạng thái đăng ký của sinh viên được hiển thị theo ngôn ngữ điểm danh của cán bộ.
+     */
     private void loadData() {
-        tableModel.setRowCount(0);
+        SuKienItem chon = cbSuKien == null ? null : (SuKienItem) cbSuKien.getSelectedItem();
+        boolean canTaiSuKien = cbSuKien != null && cbSuKien.getItemCount() <= 1;
+        String url = "/api/dang-ky/theo-su-kien" + (chon == null || chon.id() == 0 ? "" : "?suKienId=" + chon.id());
 
-        // Sample data matching WinForms screenshot exactly
-        Object[][] data = {
-                {"TG001", "Nguyễn Văn An", "nguyenvanan@gm...", "0903123456", "Đại biểu", "Vắng", "Đã xác nhận"},
-                {"TG002", "Trần Thị Bích", "bichtran.it@gmail....", "0912345678", "Khách mời", "Vắng", "Đã xác nhận"},
-                {"TG003", "Lê Hoàng Nam", "nam.lehoang@gm...", "0987654321", "Ban tổ chức", "Đã điểm danh", "Đã xác nhận"},
-                {"TG004", "Phạm Minh Đức", "duc.pham99@gma...", "0978112233", "Sinh viên", "Chưa điểm danh", "Đã xác nhận"},
-                {"TG005", "Hoàng Thu Thảo", "thuthao.hoang@g...", "0934556677", "Sinh viên", "Đã điểm danh", "Đã xác nhận"},
-                {"TG006", "Vũ Quốc Huy", "quochuy.vu@gmai...", "0961223344", "Đại biểu", "Vắng", "Đã hủy"},
-                {"TG007", "Đặng Thùy Linh", "thuylinh.dang@gm...", "0945667788", "Sinh viên", "Đã điểm danh", "Đã xác nhận"},
-                {"TG008", "Bùi Anh Tuấn", "anhtuan.bui@gmail...", "0918990011", "Ban tổ chức", "Đã điểm danh", "Đã xác nhận"},
-                {"TG009", "Đỗ Mai Phương", "maiphuong.do@g...", "0922334455", "Khách mời", "Chưa điểm danh", "Đã xác nhận"},
-                {"TG010", "Ngô Kiến Huy", "kienhuy.ngo@gma...", "0988776655", "Sinh viên", "Đã điểm danh", "Đã xác nhận"},
-                {"TG011", "Dương Thúy Nga", "thuynga.duong@g...", "0977889900", "Giảng viên", "Đã điểm danh", "Đã xác nhận"},
-                {"TG012", "Lý Gia Bảo", "giabao.ly@gmail.c...", "0933112233", "Sinh viên", "Vắng", "Chưa xác nhận"},
-                {"TG013", "Hồ Ngọc Mai", "ngocmai.ho@gmai...", "0908776655", "Sinh viên", "Đã điểm danh", "Đã xác nhận"},
-                {"TG014", "Võ Trọng Tấn", "trongtan.vo@gmail...", "0919223344", "Đại biểu", "Đã điểm danh", "Đã xác nhận"},
-                {"TG015", "Phan Thanh Hải", "thanhhai.phan@g...", "0981334455", "Khách mời", "Chưa điểm danh", "Đã xác nhận"},
-                {"TG016", "Trịnh Bảo Trâm", "baotram.trinh@gm...", "0966778899", "Sinh viên", "Đã điểm danh", "Đã xác nhận"},
-                {"TG017", "Đinh Hữu Phước", "huuphuoc.dinh@g...", "0944556677", "Sinh viên", "Vắng", "Chưa xác nhận"},
-                {"TG018", "Lâm Khánh Chi", "khanhchi.lam@gm...", "0922889900", "Ban tổ chức", "Đã điểm danh", "Đã xác nhận"},
-        };
-
-        for (Object[] row : data) {
-            tableModel.addRow(row);
-        }
-        updateStats();
-
-        // Connect to backend if available
-        SwingWorker<Void, Void> worker = new SwingWorker<>() {
-            @Override
-            protected Void doInBackground() {
-                try {
-                    HttpClient client = HttpClient.newHttpClient();
-                    HttpRequest request = HttpRequest.newBuilder()
-                            .uri(URI.create("http://localhost:8080/api/nguoi-tham-gia/danh-sach"))
-                            .GET()
-                            .build();
-
-                    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                    if (response.statusCode() == 200) {
-                        JsonArray arr = JsonParser.parseString(response.body()).getAsJsonArray();
-                        if (arr.size() > 0) {
-                            SwingUtilities.invokeLater(() -> {
-                                tableModel.setRowCount(0);
-                                for (JsonElement elem : arr) {
-                                    JsonObject obj = elem.getAsJsonObject();
-                                    String ma = obj.has("maHocSinh") && !obj.get("maHocSinh").isJsonNull() ? obj.get("maHocSinh").getAsString() : "TG" + obj.get("id").getAsLong();
-                                    String ten = obj.has("hoTen") && !obj.get("hoTen").isJsonNull() ? obj.get("hoTen").getAsString() : "";
-                                    String email = obj.has("email") && !obj.get("email").isJsonNull() ? obj.get("email").getAsString() : "";
-                                    String sdt = obj.has("soDienThoai") && !obj.get("soDienThoai").isJsonNull() ? obj.get("soDienThoai").getAsString() : "";
-                                    String vaiTro = obj.has("vaiTro") && !obj.get("vaiTro").isJsonNull() ? obj.get("vaiTro").getAsString() : "Sinh viên";
-                                    String diemDanh = obj.has("trangThaiDiemDanh") && !obj.get("trangThaiDiemDanh").isJsonNull() ? obj.get("trangThaiDiemDanh").getAsString() : "Chưa điểm danh";
-                                    String trangThai = "Đã xác nhận";
-                                    tableModel.addRow(new Object[]{ma, ten, email, sdt, vaiTro, diemDanh, trangThai});
-                                }
-                                updateStats();
-                            });
-                        }
-                    }
-                } catch (Exception ignored) {}
-                return null;
+        Api.chayNen(mainPanel, () -> {
+            JsonObject kq = new JsonObject();
+            kq.add("dangKy", Api.get(url));
+            if (canTaiSuKien) kq.add("suKien", Api.get("/api/su-kien/danh-sach"));
+            return kq;
+        }, kq -> {
+            if (canTaiSuKien) {
+                for (JsonElement el : Api.arr(kq, "suKien")) {
+                    JsonObject sk = el.getAsJsonObject();
+                    cbSuKien.addItem(new SuKienItem(Api.n(sk, "id"), Api.s(sk, "tenSuKien")));
+                }
             }
+            tableModel.setRowCount(0);
+            dsDangKy.clear();
+            diemDanhGoc.clear();
+            for (JsonElement el : Api.arr(kq, "dangKy")) {
+                JsonObject dk = el.getAsJsonObject();
+                String tt = Api.s(dk, "trangThai");
+                String diemDanh = sangDiemDanh(tt);
+                dsDangKy.add(dk);
+                diemDanhGoc.add(diemDanh);
+                tableModel.addRow(new Object[]{Api.s(dk, "maSinhVien"), Api.s(dk, "hoTen"), Api.s(dk, "email"),
+                        Api.s(dk, "soDienThoai"), Api.s(dk, "tenSuKien"), diemDanh,
+                        "Đã hủy".equals(tt) ? "Đã hủy" : "Đã xác nhận"});
+            }
+            updateStats();
+        });
+    }
+
+    // Trạng thái đăng ký (DB) <-> chữ điểm danh trên màn hình cán bộ
+    private static String sangDiemDanh(String trangThaiDangKy) {
+        return switch (trangThaiDangKy) {
+            case "Đã tham gia" -> "Đã điểm danh";
+            case "Vắng mặt" -> "Vắng";
+            default -> "Chưa điểm danh";
         };
-        worker.execute();
+    }
+
+    private static String sangTrangThaiDangKy(String diemDanh) {
+        return switch (diemDanh) {
+            case "Đã điểm danh" -> "Đã tham gia";
+            case "Vắng" -> "Vắng mặt";
+            default -> "Đã đăng ký";
+        };
     }
 
     public JPanel getMainPanel() {

@@ -1,16 +1,26 @@
 package com.eventmanager.backend.controller;
 
+import com.eventmanager.backend.admin.common.HangSo;
+import com.eventmanager.backend.admin.service.ThongBaoAdminService;
 import com.eventmanager.backend.entity.SinhVien;
+import com.eventmanager.backend.entity.ThongBao;
 import com.eventmanager.backend.repository.SinhVienRepository;
 import com.eventmanager.backend.repository.TaiKhoanRepository;
+import com.eventmanager.backend.repository.ThongBaoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * Use case "Quản lý thông tin cá nhân": xem và cập nhật thông tin.
+ * Kèm thông báo dành cho sinh viên (liên kết với phần Admin duyệt thông báo).
  */
 @RestController
 @RequestMapping("/api/sinh-vien")
@@ -21,6 +31,41 @@ public class SinhVienController {
 
     @Autowired
     private TaiKhoanRepository taiKhoanRepo;
+
+    @Autowired
+    private ThongBaoRepository thongBaoRepo;
+
+    // Thông báo sinh viên được xem: Admin đã duyệt / đã đăng, gửi cho "Tất cả người tham gia" hoặc "Sinh viên".
+    // Thông báo chờ duyệt, bị từ chối, đã gỡ hoặc gửi riêng cho cán bộ / ban tổ chức thì không hiện.
+    // GET /api/sinh-vien/thong-bao
+    @GetMapping("/thong-bao")
+    public List<Map<String, Object>> getThongBao() {
+        List<Map<String, Object>> kq = new ArrayList<>();
+        for (ThongBao tb : thongBaoRepo.findAll()) {
+            String tt = ThongBaoAdminService.trangThaiChuan(tb);
+            if (!HangSo.DA_DUYET.equals(tt) && !HangSo.TB_DA_DANG.equals(tt)) continue;
+            if (!danhChoSinhVien(tb.getDoiTuong())) continue;
+
+            Map<String, Object> m = new HashMap<>();
+            m.put("id", tb.getId());
+            m.put("maThongBao", tb.getMaThongBao());
+            m.put("tieuDe", tb.getTieuDe());
+            m.put("noiDung", tb.getNoiDung());
+            m.put("doiTuong", tb.getDoiTuong());
+            // Ngày hiển thị: ngày Admin đăng, chưa đăng thì lấy ngày gửi
+            LocalDateTime ngay = tb.getNgayDang() != null ? tb.getNgayDang()
+                    : tb.getNgayGui() != null ? tb.getNgayGui().atStartOfDay() : null;
+            m.put("ngay", ngay);
+            kq.add(m);
+        }
+        kq.sort(Comparator.comparing((Map<String, Object> m) -> (LocalDateTime) m.get("ngay"),
+                Comparator.nullsLast(Comparator.reverseOrder())));
+        return kq;
+    }
+
+    private static boolean danhChoSinhVien(String doiTuong) {
+        return doiTuong == null || doiTuong.isBlank() || doiTuong.startsWith("Tất cả") || doiTuong.equals("Sinh viên");
+    }
 
     // GET /api/sinh-vien/thong-tin?tenDangNhap=hocsinh01
     @GetMapping("/thong-tin")

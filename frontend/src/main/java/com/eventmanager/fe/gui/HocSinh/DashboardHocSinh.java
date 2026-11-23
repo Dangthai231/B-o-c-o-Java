@@ -21,6 +21,7 @@ public class DashboardHocSinh implements TrangSinhVien.DieuHuong {
     public static final String CUA_TOI = "cuatoi";
     public static final String DANH_GIA = "danhgia";
     public static final String CA_NHAN = "canhan";
+    public static final String THONG_BAO = "thongbao";
 
     private final String currentUsername;
     private JPanel mainPanel;
@@ -30,6 +31,7 @@ public class DashboardHocSinh implements TrangSinhVien.DieuHuong {
     private final Map<String, MucMenu> cacMuc = new LinkedHashMap<>();
     private final Map<String, TrangSinhVien> cacTrang = new LinkedHashMap<>();
     private final JLabel lblTaiKhoan = new JLabel();
+    private final JLabel lblSoChuong = new JLabel("", SwingConstants.CENTER);
 
     // Các trang con
     private TraCuuSuKien traCuuSuKien;
@@ -55,6 +57,7 @@ public class DashboardHocSinh implements TrangSinhVien.DieuHuong {
         cacTrang.put(TRA_CUU, traCuuSuKien);
         cacTrang.put(CUA_TOI, new SuKienCuaToi(this));
         cacTrang.put(DANH_GIA, danhGiaPhanHoi);
+        cacTrang.put(THONG_BAO, new ThongBaoSinhVien(this));
         cacTrang.put(CA_NHAN, new ThongTinCaNhan(this, this::capNhatTenHienThi));
 
         noiDung.setBackground(Theme.BG);
@@ -69,6 +72,7 @@ public class DashboardHocSinh implements TrangSinhVien.DieuHuong {
 
         moTrang(TRANG_CHU);
         capNhatTenHienThi();
+        capNhatChuong();
 
         // Tự nới rộng cửa sổ nếu màn hình đủ lớn
         mainPanel.addHierarchyListener(e -> {
@@ -112,6 +116,7 @@ public class DashboardHocSinh implements TrangSinhVien.DieuHuong {
         themMuc(menu, TRA_CUU, "Tra cứu sự kiện", Icons.SEARCH);
         themMuc(menu, CUA_TOI, "Sự kiện của tôi", Icons.CALENDAR);
         themMuc(menu, DANH_GIA, "Đánh giá và phản hồi", Icons.EDIT);
+        themMuc(menu, THONG_BAO, "Thông báo", Icons.BELL);
         themMuc(menu, CA_NHAN, "Thông tin cá nhân", Icons.USER);
         sidebar.add(menu, BorderLayout.CENTER);
 
@@ -194,8 +199,75 @@ public class DashboardHocSinh implements TrangSinhVien.DieuHuong {
             }
         });
 
-        tren.add(UI.hangPhai(16, timNhanh, khoiTk), BorderLayout.EAST);
+        tren.add(UI.hangPhai(16, timNhanh, taoChuong(), khoiTk), BorderLayout.EAST);
         return tren;
+    }
+
+    /** Chuông thông báo + chấm đỏ đếm số chưa đọc (giống DashboardCanbo). Bấm để mở trang Thông báo. */
+    private JComponent taoChuong() {
+        JPanel chuong = new JPanel(null) {
+            @Override
+            public Dimension getPreferredSize() {
+                return new Dimension(36, 36);
+            }
+        };
+        chuong.setOpaque(false);
+        JLabel icon = new JLabel(Icons.of(Icons.BELL, 22, Theme.TEXT));
+        icon.setBounds(6, 7, 24, 24);
+        lblSoChuong.setFont(Theme.font(Font.BOLD, 9));
+        lblSoChuong.setForeground(Color.WHITE);
+        lblSoChuong.setOpaque(false);
+        lblSoChuong.setBounds(19, 2, 16, 16);
+        lblSoChuong.setUI(new javax.swing.plaf.basic.BasicLabelUI() {
+            @Override
+            public void paint(Graphics g, JComponent c) {
+                if (!lblSoChuong.getText().isEmpty()) {
+                    Graphics2D g2 = Theme.muot(g);
+                    g2.setColor(Theme.DANGER);
+                    g2.fillOval(0, 0, c.getWidth(), c.getHeight());
+                    g2.dispose();
+                }
+                super.paint(g, c);
+            }
+        });
+        chuong.add(lblSoChuong);
+        chuong.add(icon);
+        chuong.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        chuong.setToolTipText("Thông báo");
+        chuong.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                moTrang(THONG_BAO);
+            }
+        });
+        return chuong;
+    }
+
+    /** Đếm thông báo dành cho sinh viên mà tài khoản này chưa mở. */
+    @Override
+    public void capNhatChuong() {
+        new SwingWorker<Integer, Void>() {
+            @Override
+            protected Integer doInBackground() throws Exception {
+                java.util.Set<Long> daXem = ThongBaoSinhVien.daXem(currentUsername);
+                int chuaDoc = 0;
+                for (com.google.gson.JsonElement el : Api.arr(Api.get("/api/sinh-vien/thong-bao"))) {
+                    if (!daXem.contains(Api.n(el.getAsJsonObject(), "id"))) chuaDoc++;
+                }
+                return chuaDoc;
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    int n = get();
+                    lblSoChuong.setText(n == 0 ? "" : n > 9 ? "9+" : String.valueOf(n));
+                    lblSoChuong.repaint();
+                } catch (Exception ignored) {
+                    // Backend chưa chạy: để chuông trống, các trang sẽ tự báo lỗi
+                }
+            }
+        }.execute();
     }
 
     /** Hiện tên đăng nhập cạnh avatar (giống DashboardCanbo hiện "canbo01"). */

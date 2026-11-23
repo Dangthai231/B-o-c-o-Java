@@ -5,10 +5,12 @@ import com.eventmanager.backend.entity.DangKySuKien;
 import com.eventmanager.backend.entity.DanhGiaSuKien;
 import com.eventmanager.backend.entity.SinhVien;
 import com.eventmanager.backend.entity.SuKien;
+import com.eventmanager.backend.entity.ThongBao;
 import com.eventmanager.backend.repository.DangKySuKienRepository;
 import com.eventmanager.backend.repository.DanhGiaSuKienRepository;
 import com.eventmanager.backend.repository.SinhVienRepository;
 import com.eventmanager.backend.repository.SuKienRepository;
+import com.eventmanager.backend.repository.ThongBaoRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -34,22 +36,25 @@ public class SuKienSeeder implements CommandLineRunner {
     private final SinhVienRepository sinhVienRepo;
     private final DangKySuKienRepository dangKyRepo;
     private final DanhGiaSuKienRepository danhGiaRepo;
+    private final ThongBaoRepository thongBaoRepo;
 
     private LocalDateTime now;
-    private int soSuKienMoi, soDangKyMoi, soDanhGiaMoi;
+    private int soSuKienMoi, soDangKyMoi, soDanhGiaMoi, soThongBaoMoi;
 
     public SuKienSeeder(SuKienRepository suKienRepo, SinhVienRepository sinhVienRepo,
-                        DangKySuKienRepository dangKyRepo, DanhGiaSuKienRepository danhGiaRepo) {
+                        DangKySuKienRepository dangKyRepo, DanhGiaSuKienRepository danhGiaRepo,
+                        ThongBaoRepository thongBaoRepo) {
         this.suKienRepo = suKienRepo;
         this.sinhVienRepo = sinhVienRepo;
         this.dangKyRepo = dangKyRepo;
         this.danhGiaRepo = danhGiaRepo;
+        this.thongBaoRepo = thongBaoRepo;
     }
 
     @Override
     public void run(String... args) {
         now = LocalDateTime.now().withHour(8).withMinute(0).withSecond(0).withNano(0);
-        soSuKienMoi = soDangKyMoi = soDanhGiaMoi = 0;
+        soSuKienMoi = soDangKyMoi = soDanhGiaMoi = soThongBaoMoi = 0;
 
         taoHoSoSinhVien();
 
@@ -124,8 +129,36 @@ public class SuKienSeeder implements CommandLineRunner {
             }
         }
 
+        // Thông báo mẫu để thấy liên kết Admin duyệt -> Sinh viên xem.
+        // Sinh viên chỉ thấy TBSV01, TBSV02 (đã đăng, gửi tất cả / sinh viên);
+        // TBSV03 gửi riêng cán bộ và TBSV04 còn chờ Admin duyệt nên sinh viên không thấy.
+        taoThongBao("TBSV01", "Mở đăng ký Cuộc thi Hackathon EPU", "Tất cả người tham gia", "Đã đăng", -2,
+                "Liên Chi đoàn CNTT mở đăng ký Cuộc thi Hackathon EPU. Các bạn đăng ký trong mục Tra cứu sự kiện trước ngày thi 3 ngày.");
+        taoThongBao("TBSV02", "Nhắc nhở đánh giá sự kiện đã tham gia", "Sinh viên", "Đã đăng", -1,
+                "Các bạn đã tham gia sự kiện vui lòng vào mục Đánh giá và phản hồi để chấm sao và góp ý giúp Ban tổ chức.");
+        taoThongBao("TBSV03", "Họp phân công hậu cần Hackathon", "Cán bộ sự kiện", "Đã đăng", -1,
+                "Cán bộ phụ trách có mặt tại văn phòng Liên Chi đoàn lúc 17h để phân công nhiệm vụ.");
+        taoThongBao("TBSV04", "Thay đổi địa điểm Seminar An toàn thông tin", "Sinh viên", "Chờ duyệt", 0,
+                "Seminar chuyển sang Hội trường nhà M (chờ Admin duyệt trước khi gửi tới sinh viên).");
+
         System.out.println("[SuKienSeeder] Đã thêm " + soSuKienMoi + " sự kiện, " + soDangKyMoi
-                + " lượt đăng ký, " + soDanhGiaMoi + " đánh giá mẫu.");
+                + " lượt đăng ký, " + soDanhGiaMoi + " đánh giá, " + soThongBaoMoi + " thông báo mẫu.");
+    }
+
+    // Bỏ qua nếu đã có thông báo cùng mã (không ghi đè thông báo nhóm đã sửa)
+    private void taoThongBao(String ma, String tieuDe, String doiTuong, String trangThai, int soNgay, String noiDung) {
+        if (thongBaoRepo.findByMaThongBao(ma).isPresent()) return;
+        ThongBao tb = new ThongBao();
+        tb.setMaThongBao(ma);
+        tb.setTieuDe(tieuDe);
+        tb.setNoiDung(noiDung);
+        tb.setDoiTuong(doiTuong);
+        tb.setTrangThai(trangThai);
+        tb.setNgayGui(now.toLocalDate().plusDays(soNgay));
+        tb.setNguoiTao("canbo01");
+        if ("Đã đăng".equals(trangThai)) tb.setNgayDang(now.plusDays(soNgay).plusHours(2));
+        thongBaoRepo.save(tb);
+        soThongBaoMoi++;
     }
 
     private void taoHoSoSinhVien() {

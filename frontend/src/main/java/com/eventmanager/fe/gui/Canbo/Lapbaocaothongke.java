@@ -13,12 +13,19 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class Lapbaocaothongke {
+    private static final DateTimeFormatter NGAY = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
     private JPanel mainPanel;
     private JLabel lblCapNhat;
+    private JCheckBox chkLocNgay;
+    private JTextField txtTuNgay;
+    private JTextField txtDenNgay;
 
     private JLabel lblTongSuKien;
     private JLabel lblDangDienRa;
@@ -77,7 +84,7 @@ public class Lapbaocaothongke {
         filterRow.setBackground(Color.WHITE);
         filterRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
 
-        JCheckBox chkLocNgay = new JCheckBox("Lọc ngày:");
+        chkLocNgay = new JCheckBox("Lọc ngày:");
         chkLocNgay.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         chkLocNgay.setBackground(Color.WHITE);
         filterRow.add(chkLocNgay);
@@ -86,7 +93,7 @@ public class Lapbaocaothongke {
         lblTuNgay.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         filterRow.add(lblTuNgay);
 
-        JTextField txtTuNgay = new JTextField("01/01/2026", 8);
+        txtTuNgay = new JTextField("01/01/2026", 8);
         txtTuNgay.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         txtTuNgay.setBorder(new CompoundBorder(new LineBorder(new Color(180, 180, 180)), new EmptyBorder(3, 6, 3, 6)));
         filterRow.add(txtTuNgay);
@@ -95,7 +102,7 @@ public class Lapbaocaothongke {
         lblDenNgay.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         filterRow.add(lblDenNgay);
 
-        JTextField txtDenNgay = new JTextField("31/12/2026", 8);
+        txtDenNgay = new JTextField("31/12/2026", 8);
         txtDenNgay.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         txtDenNgay.setBorder(new CompoundBorder(new LineBorder(new Color(180, 180, 180)), new EmptyBorder(3, 6, 3, 6)));
         filterRow.add(txtDenNgay);
@@ -104,6 +111,9 @@ public class Lapbaocaothongke {
         btnXemBaoCao.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btnXemBaoCao.setBackground(new Color(60, 120, 168));
         btnXemBaoCao.setForeground(Color.WHITE);
+        // Giao diện Windows bỏ qua setBackground của JButton -> tự tô nền, nếu không chữ trắng trên nền trắng
+        btnXemBaoCao.setContentAreaFilled(false);
+        btnXemBaoCao.setOpaque(true);
         btnXemBaoCao.setFocusPainted(false);
         btnXemBaoCao.setBorder(new EmptyBorder(6, 16, 6, 16));
         btnXemBaoCao.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -114,10 +124,9 @@ public class Lapbaocaothongke {
         lblCapNhat.setForeground(new Color(100, 100, 100));
         filterRow.add(lblCapNhat);
 
-        btnXemBaoCao.addActionListener(e -> {
-            lblCapNhat.setText("Cập nhật lúc " + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
-            loadBaoCaoData();
-        });
+        btnXemBaoCao.addActionListener(e -> loadBaoCaoData());
+        // Tick / bỏ tick "Lọc ngày" thì xem lại báo cáo ngay
+        chkLocNgay.addActionListener(e -> loadBaoCaoData());
 
         mainPanel.add(filterRow);
         mainPanel.add(Box.createVerticalStrut(15));
@@ -176,14 +185,35 @@ public class Lapbaocaothongke {
         return card;
     }
 
+    /** Tick "Lọc ngày" thì gửi ?tuNgay=yyyy-MM-dd&denNgay=yyyy-MM-dd, không tick thì xem cả năm nay. */
     private void loadBaoCaoData() {
+        String url = "http://localhost:8080/api/thongke/bao-cao";
+        if (chkLocNgay != null && chkLocNgay.isSelected()) {
+            try {
+                LocalDate tu = LocalDate.parse(txtTuNgay.getText().trim(), NGAY);
+                LocalDate den = LocalDate.parse(txtDenNgay.getText().trim(), NGAY);
+                if (tu.isAfter(den)) {
+                    JOptionPane.showMessageDialog(mainPanel, "\"Từ ngày\" phải trước \"Đến ngày\"", "Lọc ngày", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                url += "?tuNgay=" + tu + "&denNgay=" + den;
+            } catch (DateTimeParseException ex) {
+                JOptionPane.showMessageDialog(mainPanel, "Ngày phải nhập dạng dd/MM/yyyy, ví dụ 01/10/2026", "Lọc ngày", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+        }
+        if (lblCapNhat != null) {
+            lblCapNhat.setText("Cập nhật lúc " + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+                    + (url.contains("?") ? "  (từ " + txtTuNgay.getText().trim() + " đến " + txtDenNgay.getText().trim() + ")" : "  (năm nay)"));
+        }
+        final String duongDan = url;
         SwingWorker<Void, Void> worker = new SwingWorker<>() {
             @Override
             protected Void doInBackground() {
                 try {
                     HttpClient client = HttpClient.newHttpClient();
                     HttpRequest request = HttpRequest.newBuilder()
-                            .uri(URI.create("http://localhost:8080/api/thongke/bao-cao"))
+                            .uri(URI.create(duongDan))
                             .GET()
                             .build();
 
@@ -265,13 +295,16 @@ public class Lapbaocaothongke {
                 return;
             }
 
-            // Draw Y-axis reference lines and labels (0, 0,5, 1, 1,5, 2, 2,5, 3, 3,5)
-            double maxY = 3.5;
+            // Draw Y-axis reference lines and labels: 7 bước, bước 0,5 khi số nhỏ, tự giãn khi số liệu thật lớn hơn
             int steps = 7;
+            int maxData = 0;
+            if (data != null) for (int v : data) maxData = Math.max(maxData, v);
+            double buoc = maxData <= 3 ? 0.5 : Math.ceil(maxData / (double) steps);
+            double maxY = buoc * steps;
             g2.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 
             for (int i = 0; i <= steps; i++) {
-                double val = i * 0.5;
+                double val = i * buoc;
                 int y = topMargin + plotHeight - (int) ((val / maxY) * plotHeight);
 
                 // Grid line

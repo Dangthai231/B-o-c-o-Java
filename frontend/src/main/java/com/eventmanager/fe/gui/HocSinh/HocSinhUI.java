@@ -102,6 +102,7 @@ public final class HocSinhUI {
             case "Đã tham gia", "Đang diễn ra" -> new Color[]{Theme.SUCCESS, Theme.SUCCESS_SOFT};
             case "Vắng mặt", "Đã hủy" -> new Color[]{Theme.DANGER, Theme.DANGER_SOFT};
             case "Chờ đánh giá" -> new Color[]{Theme.WARNING, Theme.WARNING_SOFT};
+            case "Mới" -> new Color[]{Theme.DANGER, Theme.DANGER_SOFT};
             case "Đã kết thúc", "Chưa đăng ký", "" -> new Color[]{Theme.TEXT_2, Theme.GRAY_SOFT};
             default -> UI.mauTrangThai(s);
         };
