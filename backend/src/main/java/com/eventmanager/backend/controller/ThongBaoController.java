@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -52,6 +54,17 @@ public class ThongBaoController {
     public ResponseEntity<Void> xoaThongBao(@PathVariable Long id) {
         repo.deleteById(id);
         return ResponseEntity.ok().build();
+    }
+
+    // Gửi thông báo ngay: chuyển sang "Đã đăng" để sinh viên thấy ngay lập tức
+    @PutMapping("/api/thong-bao/gui/{id}")
+    public ResponseEntity<?> guiThongBao(@PathVariable Long id) {
+        return repo.findById(id).map(tb -> {
+            tb.setTrangThai("Đã đăng");
+            tb.setNgayDang(LocalDateTime.now());
+            tb.setNgayGui(LocalDate.now());
+            return ResponseEntity.ok(repo.save(tb));
+        }).orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/api/admin/thong-bao")

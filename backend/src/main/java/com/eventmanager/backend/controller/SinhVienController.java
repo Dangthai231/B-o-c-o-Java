@@ -42,8 +42,11 @@ public class SinhVienController {
     public List<Map<String, Object>> getThongBao() {
         List<Map<String, Object>> kq = new ArrayList<>();
         for (ThongBao tb : thongBaoRepo.findAll()) {
+            String rawTt = tb.getTrangThai();
             String tt = ThongBaoAdminService.trangThaiChuan(tb);
-            if (!HangSo.DA_DUYET.equals(tt) && !HangSo.TB_DA_DANG.equals(tt)) continue;
+            boolean daDuyetHoacDang = HangSo.DA_DUYET.equals(tt) || HangSo.TB_DA_DANG.equals(tt)
+                    || "Đã đăng".equalsIgnoreCase(rawTt) || "Đã duyệt".equalsIgnoreCase(rawTt) || "Đã gửi".equalsIgnoreCase(rawTt);
+            if (!daDuyetHoacDang) continue;
             if (!danhChoSinhVien(tb.getDoiTuong())) continue;
 
             Map<String, Object> m = new HashMap<>();

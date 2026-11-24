@@ -293,6 +293,8 @@ public class DashboardCanbo {
             quanlycongviec.taiLai();
         } else if (NGUOI_THAM_GIA.equals(ma)) {
             quanlynguoithamgia.taiLai();
+        } else if (THONG_BAO.equals(ma)) {
+            quanlythongbao.taiLai();
         }
         mainPanel.revalidate();
         mainPanel.repaint();
