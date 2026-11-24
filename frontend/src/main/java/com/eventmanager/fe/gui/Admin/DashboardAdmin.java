@@ -32,7 +32,8 @@ public class DashboardAdmin implements TrangAdmin.DieuHuong {
 
     // Mã các trang
     public static final String TONG_QUAN = "tongquan", SU_KIEN = "sukien", THONG_BAO = "thongbao",
-            TAI_KHOAN = "taikhoan", PHAN_QUYEN = "phanquyen", BAO_CAO = "baocao", CAI_DAT = "caidat";
+            TAI_KHOAN = "taikhoan", PHAN_QUYEN = "phanquyen", BAO_CAO = "baocao", CAI_DAT = "caidat",
+            CONG_VIEC = "congviec";
 
     private final String tenDangNhap;
     private CardLayout cardLayout;
@@ -63,6 +64,7 @@ public class DashboardAdmin implements TrangAdmin.DieuHuong {
         cacTrang.put(THONG_BAO, new QuanLyThongBaoPanel(this));
         cacTrang.put(TAI_KHOAN, trangTaiKhoan);
         cacTrang.put(PHAN_QUYEN, trangPhanQuyen);
+        cacTrang.put(CONG_VIEC, new QuanLyCongViecPanel(this));
         cacTrang.put(BAO_CAO, new BaoCaoPanel(this));
         cacTrang.put(CAI_DAT, new CaiDatPanel(this));
         cacTrang.forEach((ma, trang) -> noiDung.add(trang, ma));
@@ -81,6 +83,9 @@ public class DashboardAdmin implements TrangAdmin.DieuHuong {
         cacMuc.put(PHAN_QUYEN, btnPhanQuyen);
         btnPhanQuyen.setIcon(Icons.of(Icons.SHIELD, 18, Color.WHITE));
         btnPhanQuyen.addActionListener(e -> moTrang(PHAN_QUYEN));
+        cacMuc.put(CONG_VIEC, btnCongViec);
+        btnCongViec.setIcon(Icons.of(Icons.LIST, 18, Color.WHITE));
+        btnCongViec.addActionListener(e -> moTrang(CONG_VIEC));
         cacMuc.put(BAO_CAO, btnBaoCao);
         btnBaoCao.setIcon(Icons.of(Icons.CHART, 18, Color.WHITE));
         btnBaoCao.addActionListener(e -> moTrang(BAO_CAO));
@@ -232,6 +237,7 @@ public class DashboardAdmin implements TrangAdmin.DieuHuong {
     private javax.swing.JButton btnPhanQuyen;
     private javax.swing.JButton btnBaoCao;
     private javax.swing.JButton btnCaiDat;
+    private javax.swing.JButton btnCongViec;
     private javax.swing.JButton btnDangXuat;
     private javax.swing.JButton btnThuGonMenu;
     private javax.swing.JTextField txtTimNhanh;
@@ -279,7 +285,7 @@ public class DashboardAdmin implements TrangAdmin.DieuHuong {
         panela258.setBackground(new java.awt.Color(0x0B2B50));
         sidebar.add(panela258, java.awt.BorderLayout.CENTER);
         javax.swing.JPanel panela253 = new javax.swing.JPanel();
-        panela253.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(7, 1, new java.awt.Insets(10, 10, 10, 10), 12, 10, false, false));
+        panela253.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(8, 1, new java.awt.Insets(10, 10, 10, 10), 12, 10, false, false));
         panela253.setBackground(new java.awt.Color(0x0B2B50));
         panela258.add(panela253, java.awt.BorderLayout.NORTH);
         btnTongQuan = new javax.swing.JButton();
@@ -354,6 +360,18 @@ public class DashboardAdmin implements TrangAdmin.DieuHuong {
         btnBaoCao.setHorizontalAlignment(2);
         btnBaoCao.setText("Báo cáo");
         panela253.add(btnBaoCao, new com.intellij.uiDesigner.core.GridConstraints(5, 0, 1, 1, 0, 1, 7, 0, null, null, null));
+        btnCongViec = new javax.swing.JButton();
+        btnCongViec.setFont(new java.awt.Font("Segoe UI", 0, 13));
+        btnCongViec.setBackground(new java.awt.Color(0x0B2B50));
+        btnCongViec.setForeground(new java.awt.Color(0xD7E5F4));
+        btnCongViec.setFocusPainted(false);
+        btnCongViec.setContentAreaFilled(false);
+        btnCongViec.setOpaque(true);
+        btnCongViec.setBorderPainted(false);
+        btnCongViec.setPreferredSize(new java.awt.Dimension(220, 40));
+        btnCongViec.setHorizontalAlignment(2);
+        btnCongViec.setText("Giao công việc");
+        panela253.add(btnCongViec, new com.intellij.uiDesigner.core.GridConstraints(6, 0, 1, 1, 0, 1, 7, 0, null, null, null));
         btnCaiDat = new javax.swing.JButton();
         btnCaiDat.setFont(new java.awt.Font("Segoe UI", 0, 13));
         btnCaiDat.setBackground(new java.awt.Color(0x0B2B50));
@@ -365,7 +383,7 @@ public class DashboardAdmin implements TrangAdmin.DieuHuong {
         btnCaiDat.setPreferredSize(new java.awt.Dimension(220, 40));
         btnCaiDat.setHorizontalAlignment(2);
         btnCaiDat.setText("Cài đặt");
-        panela253.add(btnCaiDat, new com.intellij.uiDesigner.core.GridConstraints(6, 0, 1, 1, 0, 1, 7, 0, null, null, null));
+        panela253.add(btnCaiDat, new com.intellij.uiDesigner.core.GridConstraints(7, 0, 1, 1, 0, 1, 7, 0, null, null, null));
         pnlChanMenu = new javax.swing.JPanel();
         pnlChanMenu.setLayout(new com.intellij.uiDesigner.core.GridLayoutManager(3, 1, new java.awt.Insets(12, 12, 12, 12), 12, 10, false, false));
         pnlChanMenu.setBackground(new java.awt.Color(0x0B2B50));

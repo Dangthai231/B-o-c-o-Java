@@ -69,10 +69,17 @@ public class ThongBaoAdminService {
 
     @Transactional
     public Map<String, Object> taoMoi(Map<String, Object> body, String nguoiTao) {
+        return taoMoi(body, nguoiTao, false);
+    }
+
+    /** guiNgay = true: Cán bộ gửi thẳng -> "Đã đăng" luôn, sinh viên thấy ngay (Admin vẫn gỡ được). */
+    @Transactional
+    public Map<String, Object> taoMoi(Map<String, Object> body, String nguoiTao, boolean guiNgay) {
         ThongBao tb = new ThongBao();
         ganVaKiemTra(tb, body);
         tb.setMaThongBao(sinhMa());
-        tb.setTrangThai(HangSo.CHO_DUYET);
+        tb.setTrangThai(guiNgay ? HangSo.TB_DA_DANG : HangSo.CHO_DUYET);
+        if (guiNgay) tb.setNgayDang(LocalDateTime.now());
         tb.setNgayGui(LocalDate.now());
         tb.setNguoiTao(DuLieu.rong(nguoiTao) ? "admin" : nguoiTao);
         return sangMap(repo.save(tb));
