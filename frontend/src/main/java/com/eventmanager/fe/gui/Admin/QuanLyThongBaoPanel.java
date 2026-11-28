@@ -105,12 +105,11 @@ public class QuanLyThongBaoPanel extends TrangAdmin {
     public void taiLai() {
         Api.chayNen(this, () -> Api.get("/api/admin/thong-bao/dem"), kq -> {
             JsonObject o = Api.obj(kq);
-            long tong = 0;
             for (int i = 0; i < TAB.length - 1; i++) {
                 long so = Api.n(o, TAB[i]);
-                tong += so;
                 nutLocTrangThai[i].setText(TAB[i] + " (" + so + ")");
             }
+            long tong = o.keySet().stream().mapToLong(tt -> Api.n(o, tt)).sum();
             nutLocTrangThai[TAB.length - 1].setText("Tất cả (" + tong + ")");
         });
         taiDanhSach();
@@ -224,8 +223,14 @@ public class QuanLyThongBaoPanel extends TrangAdmin {
             txtNoiDung.setText(Api.s(tb, "noiDung"));
         }
         luu.addActionListener(e -> {
+            String doiTuong = (String) cboDoiTuongNhan.getSelectedItem();
+            if (doiTuong == null || doiTuong.isBlank()) {
+                loi.setText("Vui lòng chọn đối tượng nhận");
+                return;
+            }
             JsonObject body = Api.body("tieuDe", txtTieuDe.getText().trim(), "noiDung", txtNoiDung.getText().trim(),
-                    "doiTuong", String.valueOf(cboDoiTuongNhan.getSelectedItem()));
+                    "doiTuong", doiTuong);
+            loi.setText(" ");
             luu.setEnabled(false);
             SuKienDialogs.guiForm(d, luu, loi,
                     () -> laSua ? Api.put("/api/admin/thong-bao/" + Api.n(tb, "id"), body)

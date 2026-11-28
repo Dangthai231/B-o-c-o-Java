@@ -9,6 +9,7 @@ import com.google.gson.JsonObject;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -36,6 +37,9 @@ public class PhanQuyenPanel extends TrangAdmin {
     private Long idChonSan = null;
     private List<JsonObject> danhMucQuyen = new ArrayList<>();
     private boolean dangNapQuyen = false; // chặn tra cứu thừa khi đang nạp combobox
+    private int lanTaiTaiKhoan;
+    private int lanTaiQuyen;
+    private int lanTraCuu;
 
     // Tab 2
 
@@ -67,8 +71,10 @@ public class PhanQuyenPanel extends TrangAdmin {
             return o;
         });
         danhSachTaiKhoan.addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting() && danhSachTaiKhoan.getSelectedValue() != null) {
-                taiQuyenCua(Api.n(danhSachTaiKhoan.getSelectedValue(), "id"));
+            if (!e.getValueIsAdjusting()) {
+                hienTrongPhai();
+                JsonObject tk = danhSachTaiKhoan.getSelectedValue();
+                if (tk != null) taiQuyenCua(Api.n(tk, "id"));
             }
         });
         bangTraCuu.anCot(0);
@@ -76,11 +82,8 @@ public class PhanQuyenPanel extends TrangAdmin {
         bangTraCuu.cotNhan(3);
         bangTraCuu.cotNhan(4);
         bangTraCuu.cotNhan(5);
-        bangDanhMuc.doRongCot(0, 140);
-        bangDanhMuc.doRongCot(1, 190);
-        bangDanhMuc.doRongCot(2, 90);
-        bangDanhMuc.doRongCot(3, 300);
         bangDanhMuc.cotNhan(2);
+        capNhatDoRongDanhMuc();
         henGio = new javax.swing.Timer(350, e -> taiDanhSachTk());
         henGio.setRepeats(false);
         txtTimTaiKhoan.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
@@ -110,7 +113,11 @@ public class PhanQuyenPanel extends TrangAdmin {
     }
 
     private void taiQuyenCua(long id) {
-        Api.chayNen(this, () -> Api.get("/api/admin/phan-quyen/tai-khoan/" + id), kq -> hienQuyen(Api.obj(kq)));
+        int lan = ++lanTaiQuyen;
+        Api.chayNen(this, () -> Api.get("/api/admin/phan-quyen/tai-khoan/" + id), kq -> {
+            JsonObject tk = danhSachTaiKhoan.getSelectedValue();
+            if (lan == lanTaiQuyen && tk != null && Api.n(tk, "id") == id) hienQuyen(Api.obj(kq));
+        });
     }
 
     /** Hiện thông tin tài khoản + bảng tích quyền theo từng nhóm. */
@@ -237,14 +244,27 @@ public class PhanQuyenPanel extends TrangAdmin {
     }
 
     private void taiDanhSachTk() {
+        int lan = ++lanTaiTaiKhoan;
+        Long moSan = idChonSan;
         String url = "/api/admin/tai-khoan?kichThuoc=100&tuKhoa=" + Api.e(txtTimTaiKhoan.getText().trim());
-        Api.chayNen(this, () -> Api.get(url), kq -> {
-            Long giuLai = idChonSan != null ? idChonSan
+        Api.chayNen(this, () -> {
+            JsonArray ds = Api.arr(Api.obj(Api.get(url)), "noiDung");
+            if (moSan != null) {
+                for (JsonElement el : ds) {
+                    if (Api.n(el.getAsJsonObject(), "id") == moSan) return ds;
+                }
+                ds.add(Api.obj(Api.get("/api/admin/tai-khoan/" + moSan)));
+            }
+            return ds;
+        }, ds -> {
+            if (lan != lanTaiTaiKhoan) return;
+            Long giuLai = moSan != null ? moSan
                     : danhSachTaiKhoan.getSelectedValue() != null ? Api.n(danhSachTaiKhoan.getSelectedValue(), "id") : null;
             idChonSan = null;
+            danhSachTaiKhoan.clearSelection();
             modelDanhSachTaiKhoan.clear();
             int chon = -1;
-            for (JsonElement el : Api.arr(Api.obj(kq), "noiDung")) {
+            for (JsonElement el : ds) {
                 JsonObject o = el.getAsJsonObject();
                 if (giuLai != null && Api.n(o, "id") == giuLai) chon = modelDanhSachTaiKhoan.size();
                 modelDanhSachTaiKhoan.addElement(o);
@@ -252,7 +272,6 @@ public class PhanQuyenPanel extends TrangAdmin {
             if (chon >= 0) {
                 danhSachTaiKhoan.setSelectedIndex(chon);
                 danhSachTaiKhoan.ensureIndexIsVisible(chon);
-                taiQuyenCua(giuLai);
             } else {
                 hienTrongPhai();
             }
@@ -261,8 +280,11 @@ public class PhanQuyenPanel extends TrangAdmin {
 
     /** Gọi từ màn Quản lý tài khoản: mở sẵn tài khoản cần phân quyền. */
     public void chonSan(long taiKhoanId) {
+        lanTaiTaiKhoan++;
+        danhSachTaiKhoan.clearSelection();
         idChonSan = taiKhoanId;
         txtTimTaiKhoan.setText("");
+        henGio.stop();
         tabChucNang.setSelectedIndex(0);
     }
 
@@ -271,11 +293,13 @@ public class PhanQuyenPanel extends TrangAdmin {
 
     private void traCuu() {
         if (dangNapQuyen) return;
+        int lan = ++lanTraCuu;
         int i = cboQuyen.getSelectedIndex();
         if (i < 0 || i >= danhMucQuyen.size()) return;
         String ma = Api.s(danhMucQuyen.get(i), "maQuyen");
         String url = "/api/admin/phan-quyen/tra-cuu?maQuyen=" + Api.e(ma) + "&tuKhoa=" + Api.e(txtTimTraCuu.getText().trim());
         Api.chayNen(this, () -> Api.get(url), kq -> {
+            if (lan != lanTraCuu) return;
             JsonObject o = Api.obj(kq);
             List<String> vt = new ArrayList<>();
             Api.arr(o, "vaiTroMacDinh").forEach(e -> vt.add(e.getAsString()));
@@ -294,6 +318,26 @@ public class PhanQuyenPanel extends TrangAdmin {
 
     // ======================= TAB 3: DANH MỤC QUYỀN =======================
 
+    private void capNhatDoRongDanhMuc() {
+        var tieuDe = bangDanhMuc.getTableHeader();
+        int tongDoRong = 0;
+        for (int c = 0; c < bangDanhMuc.getColumnCount(); c++) {
+            TableColumn cot = bangDanhMuc.getColumnModel().getColumn(c);
+            Component oTieuDe = tieuDe.getDefaultRenderer().getTableCellRendererComponent(
+                    bangDanhMuc, cot.getHeaderValue(), false, false, -1, c);
+            int doRong = oTieuDe.getPreferredSize().width;
+            for (int r = 0; r < bangDanhMuc.getRowCount(); r++) {
+                Component o = bangDanhMuc.prepareRenderer(bangDanhMuc.getCellRenderer(r, c), r, c);
+                doRong = Math.max(doRong, o.getPreferredSize().width);
+            }
+            // Chừa chỗ cho đường phân cách và khoảng cách giữa các cột.
+            doRong += 4;
+            cot.setMinWidth(doRong);
+            cot.setPreferredWidth(doRong);
+            tongDoRong += doRong;
+        }
+        tieuDe.setPreferredSize(new Dimension(tongDoRong, tieuDe.getPreferredSize().height));
+    }
 
     // ======================= TẢI DỮ LIỆU =======================
     @Override
@@ -311,6 +355,7 @@ public class PhanQuyenPanel extends TrangAdmin {
                 bangDanhMuc.themDong(Api.s(q, "maQuyen"), Api.s(q, "tenQuyen"), Api.s(q, "nhom"),
                         Api.s(q, "moTa"), Api.s(q, "vaiTroMacDinh"));
             }
+            capNhatDoRongDanhMuc();
             if (cboQuyen.getItemCount() > chonCu) cboQuyen.setSelectedIndex(chonCu);
             dangNapQuyen = false;
             taiDanhSachTk();
@@ -468,6 +513,12 @@ public class PhanQuyenPanel extends TrangAdmin {
         txtTimTraCuu = UI.oTimKiem("Tên hoặc email người dùng");
         txtTimTaiKhoan = UI.oTimKiem("Tên hoặc email tài khoản");
         bangTraCuu = new BangDep("id", "Họ và tên", "Email", "Vai trò", "Nguồn quyền", "Trạng thái");
-        bangDanhMuc = new BangDep("Mã quyền", "Tên quyền", "Nhóm", "Mô tả", "Vai trò mặc định");
+        bangDanhMuc = new BangDep("Mã quyền", "Tên quyền", "Nhóm", "Mô tả", "Vai trò mặc định") {
+            @Override
+            public boolean getScrollableTracksViewportWidth() {
+                return getParent() instanceof JViewport viewport
+                        && viewport.getWidth() >= getPreferredSize().width;
+            }
+        };
     }
 }

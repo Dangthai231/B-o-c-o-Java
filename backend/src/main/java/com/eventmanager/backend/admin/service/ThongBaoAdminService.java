@@ -36,7 +36,7 @@ public class ThongBaoAdminService {
     }
 
     public List<Map<String, Object>> danhSach(String trangThai, String tuKhoa) {
-        String kw = tuKhoa == null ? "" : tuKhoa.trim().toLowerCase();
+        String kw = tuKhoa == null ? "" : tuKhoa.trim().toLowerCase(Locale.ROOT);
         List<ThongBao> ds = new ArrayList<>(repo.findAll());
         ds.sort(Comparator.comparing(ThongBao::getId).reversed());
 
@@ -44,7 +44,7 @@ public class ThongBaoAdminService {
         for (ThongBao tb : ds) {
             if (!DuLieu.rong(trangThai) && !trangThai.equals(trangThaiChuan(tb))) continue;
             String timTrong = (DuLieu.khongNull(tb.getTieuDe()) + " " + DuLieu.khongNull(tb.getMaThongBao())
-                    + " " + DuLieu.khongNull(tb.getDoiTuong())).toLowerCase();
+                    + " " + DuLieu.khongNull(tb.getDoiTuong())).toLowerCase(Locale.ROOT);
             if (!kw.isEmpty() && !timTrong.contains(kw)) continue;
             kq.add(sangMap(tb));
         }
@@ -151,6 +151,7 @@ public class ThongBaoAdminService {
         if (tieuDe.length() > 200) throw new LoiNghiepVu("Tiêu đề tối đa 200 ký tự");
         if (noiDung.isEmpty()) throw new LoiNghiepVu("Nội dung không được để trống");
         if (doiTuong.isEmpty()) throw new LoiNghiepVu("Vui lòng chọn đối tượng nhận");
+        if (doiTuong.length() > 255) throw new LoiNghiepVu("Đối tượng nhận tối đa 255 ký tự");
         tb.setTieuDe(tieuDe);
         tb.setNoiDung(noiDung);
         tb.setDoiTuong(doiTuong);

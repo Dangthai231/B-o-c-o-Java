@@ -3,6 +3,7 @@ package com.eventmanager.backend.admin.common;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.format.ResolverStyle;
 import java.util.Map;
 
 /**
@@ -13,7 +14,8 @@ public final class DuLieu {
     public static final DateTimeFormatter NGAY_GIO = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
     public static final DateTimeFormatter NGAY = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     // Định dạng FE gửi lên khi nhập ngày giờ: 15/11/2026 08:00
-    private static final DateTimeFormatter NHAP_NGAY_GIO = DateTimeFormatter.ofPattern("d/M/yyyy H:mm");
+    private static final DateTimeFormatter NHAP_NGAY_GIO = DateTimeFormatter.ofPattern("d/M/uuuu H:mm")
+            .withResolverStyle(ResolverStyle.STRICT);
 
     private DuLieu() {
     }
