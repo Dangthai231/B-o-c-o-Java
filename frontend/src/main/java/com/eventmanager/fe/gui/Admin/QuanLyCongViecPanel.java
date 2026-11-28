@@ -7,11 +7,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * MÀN HÌNH "GIAO CÔNG VIỆC" của Admin (Admin -> Cán bộ)
@@ -25,15 +26,37 @@ public class QuanLyCongViecPanel extends TrangAdmin {
     private static final String[] UU_TIEN = {"Trung bình", "Cao", "Thấp"};
 
     private final BangDep bang = new BangDep("ID", "Mã CV", "Công việc", "Sự kiện", "Cán bộ phụ trách",
-            "Hạn chót", "Tiến độ", "Trạng thái", "Thao tác");
-    private final JComboBox<String> cbLocCanBo = UI.hopChon(new String[]{"Tất cả cán bộ"}, Icons.USER);
+            "Hạn chót", "Tiến độ", "Trạng thái", "Thao tác") {
+        @Override
+        public boolean getScrollableTracksViewportWidth() {
+            return getParent() instanceof JViewport viewport && viewport.getWidth() >= getPreferredSize().width;
+        }
+    };
+    private record CanBo(String tenDangNhap, String hienThi) {
+        @Override public String toString() { return hienThi; }
+
+        boolean khop(String nhanSu) {
+            return hienThi.equalsIgnoreCase(nhanSu) || (!tenDangNhap.isEmpty()
+                    && (tenDangNhap.equalsIgnoreCase(nhanSu)
+                    || nhanSu.toLowerCase(Locale.ROOT).endsWith(" (" + tenDangNhap.toLowerCase(Locale.ROOT) + ")")));
+        }
+    }
+
+    private record SuKienChon(long id, String hienThi) {
+        @Override public String toString() { return hienThi; }
+    }
+
+    private static final CanBo TAT_CA_CAN_BO = new CanBo("", "Tất cả cán bộ");
+    private final JComboBox<CanBo> cbLocCanBo = UI.hopChon(new CanBo[]{TAT_CA_CAN_BO}, Icons.USER);
     private final UI.TextFieldDep oTim = UI.oTimKiem("Tìm theo mã, tên công việc...");
 
     private final List<JsonObject> tatCa = new ArrayList<>();
     private final List<JsonObject> dangHien = new ArrayList<>();
-    private final List<String> dsCanBo = new ArrayList<>();      // "Họ tên (canbo01)"
-    private final List<long[]> idSuKien = new ArrayList<>();
-    private final List<String> tenSuKien = new ArrayList<>();
+    private final List<CanBo> dsCanBo = new ArrayList<>();
+    private final List<SuKienChon> dsSuKien = new ArrayList<>();
+    private final UI.FlatButton btnGiao = UI.nut("Giao việc mới", Icons.PLUS, UI.Kieu.CHINH);
+    private boolean daTaiDuLieu;
+    private int lanTai;
 
     public QuanLyCongViecPanel(DieuHuong dieuHuong) {
         super(dieuHuong);
@@ -45,7 +68,7 @@ public class QuanLyCongViecPanel extends TrangAdmin {
         dau.setOpaque(false);
         dau.add(UI.tieuDeTrang("Giao công việc",
                 "Giao việc cho cán bộ và theo dõi tiến độ"), BorderLayout.WEST);
-        UI.FlatButton btnGiao = UI.nut("Giao việc mới", Icons.PLUS, UI.Kieu.CHINH);
+        btnGiao.setEnabled(false);
         btnGiao.addActionListener(e -> formCongViec(null));
         UI.FlatButton btnLamMoi = UI.nut("Làm mới", Icons.REFRESH, UI.Kieu.VIEN);
         btnLamMoi.addActionListener(e -> taiLai());
@@ -78,7 +101,7 @@ public class QuanLyCongViecPanel extends TrangAdmin {
         bang.cotThaoTac(8, List.of(
                         new BangDep.NutThaoTac("sua", null, Icons.EDIT, "Sửa / đổi cán bộ"),
                         new BangDep.NutThaoTac("xoa", null, Icons.TRASH, "Xóa công việc")),
-                null,
+                (ma, dong) -> daTaiDuLieu && dong < dangHien.size(),
                 (ma, dong) -> {
                     JsonObject cv = dangHien.get(dong);
                     if ("sua".equals(ma)) formCongViec(cv);
@@ -93,42 +116,47 @@ public class QuanLyCongViecPanel extends TrangAdmin {
     // ======================= TẢI DỮ LIỆU =======================
     @Override
     public void taiLai() {
-        Api.chayNen(this, () -> Api.get("/api/cong-viec/nhan-su"), kq -> {
-            Object chon = cbLocCanBo.getSelectedItem();
+        int lan = ++lanTai;
+        daTaiDuLieu = false;
+        btnGiao.setEnabled(false);
+        bang.repaint();
+        Api.chayNen(this, () -> List.of(Api.get("/api/cong-viec/nhan-su"),
+                Api.get("/api/cong-viec/su-kien"), Api.get("/api/cong-viec/danh-sach")), kq -> {
+            if (lan != lanTai) return;
+            CanBo chon = (CanBo) cbLocCanBo.getSelectedItem();
             dsCanBo.clear();
-            cbLocCanBo.removeAllItems();
-            cbLocCanBo.addItem("Tất cả cán bộ");
-            for (JsonElement el : Api.arr(kq)) {
-                String ht = Api.s(el.getAsJsonObject(), "hienThi");
-                dsCanBo.add(ht);
-                cbLocCanBo.addItem(ht);
-            }
-            if (chon != null) cbLocCanBo.setSelectedItem(chon);
-        });
-        Api.chayNen(this, () -> Api.get("/api/cong-viec/su-kien"), kq -> {
-            idSuKien.clear();
-            tenSuKien.clear();
-            for (JsonElement el : Api.arr(kq)) {
+            var loc = new DefaultComboBoxModel<>(new CanBo[]{TAT_CA_CAN_BO});
+            for (JsonElement el : Api.arr(kq.get(0))) {
                 JsonObject o = el.getAsJsonObject();
-                idSuKien.add(new long[]{Api.n(o, "id")});
-                tenSuKien.add(Api.s(o, "tenSuKien"));
+                CanBo cb = new CanBo(Api.s(o, "tenDangNhap"), Api.s(o, "hienThi"));
+                dsCanBo.add(cb);
+                loc.addElement(cb);
+                if (chon != null && cb.tenDangNhap().equals(chon.tenDangNhap())) loc.setSelectedItem(cb);
             }
-        });
-        Api.chayNen(this, () -> Api.get("/api/cong-viec/danh-sach"), kq -> {
+            cbLocCanBo.setModel(loc);
+            dsSuKien.clear();
+            for (JsonElement el : Api.arr(kq.get(1))) {
+                JsonObject o = el.getAsJsonObject();
+                String ma = Api.s(o, "maSuKien");
+                String ten = Api.s(o, "tenSuKien");
+                dsSuKien.add(new SuKienChon(Api.n(o, "id"), ma.isEmpty() ? ten : ma + " – " + ten));
+            }
             tatCa.clear();
-            for (JsonElement el : Api.arr(kq)) tatCa.add(el.getAsJsonObject());
+            for (JsonElement el : Api.arr(kq.get(2))) tatCa.add(el.getAsJsonObject());
+            daTaiDuLieu = true;
+            btnGiao.setEnabled(true);
             hienBang();
         });
     }
 
     private void hienBang() {
-        String canBo = cbLocCanBo.getSelectedIndex() > 0 ? String.valueOf(cbLocCanBo.getSelectedItem()) : null;
-        String tu = oTim.getText().trim().toLowerCase();
+        CanBo canBo = (CanBo) cbLocCanBo.getSelectedItem();
+        String tu = oTim.getText().trim().toLowerCase(Locale.ROOT);
         dangHien.clear();
         bang.xoaHet();
         for (JsonObject o : tatCa) {
-            if (canBo != null && !canBo.equals(Api.s(o, "nhanSu"))) continue;
-            String chu = (Api.s(o, "maCv") + " " + Api.s(o, "tenCongViec")).toLowerCase();
+            if (canBo != null && canBo != TAT_CA_CAN_BO && !canBo.khop(Api.s(o, "nhanSu"))) continue;
+            String chu = (Api.s(o, "maCv") + " " + Api.s(o, "tenCongViec")).toLowerCase(Locale.ROOT);
             if (!tu.isEmpty() && !chu.contains(tu)) continue;
             dangHien.add(o);
             String nguoiGiao = "admin".equalsIgnoreCase(Api.s(o, "nguoiGiao")) ? "Admin giao" : "Cán bộ tự lập";
@@ -152,19 +180,28 @@ public class QuanLyCongViecPanel extends TrangAdmin {
                 "Cán bộ được chọn sẽ thấy công việc này trong mục Quản lý công việc", 600);
 
         UI.TextFieldDep tfTen = UI.oNhap("VD: Chuẩn bị hội trường");
-        JComboBox<String> cbSuKien = UI.hopChon(new String[]{"(Không gắn sự kiện)"}, Icons.CALENDAR);
-        for (String t : tenSuKien) cbSuKien.addItem(t);
-        JComboBox<String> cbCanBo = UI.hopChon(dsCanBo.toArray(new String[0]), Icons.USER);
+        JComboBox<SuKienChon> cbSuKien = UI.hopChon(new SuKienChon[]{new SuKienChon(0, "(Không gắn sự kiện)")}, Icons.CALENDAR);
+        dsSuKien.forEach(cbSuKien::addItem);
+        JComboBox<CanBo> cbCanBo = UI.hopChon(dsCanBo.toArray(CanBo[]::new), Icons.USER);
+        cbCanBo.setSelectedIndex(-1);
         JComboBox<String> cbUuTien = UI.hopChon(UU_TIEN, Icons.LIST);
         UI.TextFieldDep tfHan = UI.oNhap("yyyy-MM-dd, VD: " + LocalDate.now().plusDays(7));
         JTextArea taMoTa = UI.vungChu(4);
 
         if (sua) {
             tfTen.setText(Api.s(cv, "tenCongViec"));
-            int i = tenSuKien.indexOf(Api.s(cv, "tenSuKien"));
-            cbSuKien.setSelectedIndex(i >= 0 ? i + 1 : 0);
-            cbCanBo.setSelectedItem(Api.s(cv, "nhanSu"));
-            cbUuTien.setSelectedItem(Api.s(cv, "mucDoUuTien"));
+            long id = Api.n(cv, "suKienId");
+            if (id > 0) {
+                SuKienChon suKien = dsSuKien.stream().filter(s -> s.id() == id).findFirst().orElse(null);
+                if (suKien == null) {
+                    suKien = new SuKienChon(id, "Sự kiện không còn trong danh sách (#" + id + ")");
+                    cbSuKien.addItem(suKien);
+                }
+                cbSuKien.setSelectedItem(suKien);
+            }
+            String nhanSu = Api.s(cv, "nhanSu");
+            dsCanBo.stream().filter(cb -> cb.khop(nhanSu)).findFirst().ifPresent(cbCanBo::setSelectedItem);
+            if (!Api.s(cv, "mucDoUuTien").isBlank()) cbUuTien.setSelectedItem(Api.s(cv, "mucDoUuTien"));
             tfHan.setText(Api.s(cv, "hanChot"));
             taMoTa.setText(Api.s(cv, "moTa"));
         }
@@ -175,6 +212,8 @@ public class QuanLyCongViecPanel extends TrangAdmin {
         d.truong("Mức ưu tiên", cbUuTien, false);
         d.truong("Hạn chót", tfHan, false);
         d.truong("Mô tả / yêu cầu", UI.cuonVungChu(taMoTa), true);
+        JLabel loi = UI.nhan(" ", Theme.SMALL, Theme.DANGER);
+        d.khoi(loi);
 
         UI.FlatButton huy = UI.nut("Hủy", UI.Kieu.VIEN);
         huy.addActionListener(e -> d.dispose());
@@ -183,20 +222,27 @@ public class QuanLyCongViecPanel extends TrangAdmin {
             String ten = tfTen.getText().trim();
             String han = tfHan.getText().trim();
             if (ten.isEmpty()) { HopThoai.loi(d, "Vui lòng nhập tên công việc"); return; }
-            if (cbCanBo.getSelectedItem() == null) { HopThoai.loi(d, "Chưa có cán bộ nào để giao việc"); return; }
+            if (ten.length() > 255) { HopThoai.loi(d, "Tên công việc tối đa 255 ký tự"); return; }
+            CanBo canBo = (CanBo) cbCanBo.getSelectedItem();
+            if (canBo == null) { HopThoai.loi(d, "Vui lòng chọn cán bộ phụ trách"); return; }
             if (!han.isEmpty()) {
-                try { LocalDate.parse(han); } catch (Exception ex) {
+                try { LocalDate.parse(han); } catch (DateTimeParseException ex) {
                     HopThoai.loi(d, "Hạn chót phải có dạng yyyy-MM-dd"); return;
                 }
             }
             JsonObject body = new JsonObject();
             body.addProperty("tenCongViec", ten);
-            body.addProperty("nhanSu", String.valueOf(cbCanBo.getSelectedItem()));
+            body.addProperty("nhanSu", canBo.hienThi());
             body.addProperty("mucDoUuTien", String.valueOf(cbUuTien.getSelectedItem()));
             body.addProperty("moTa", taMoTa.getText().trim());
             if (!han.isEmpty()) body.addProperty("hanChot", han);
-            int sk = cbSuKien.getSelectedIndex();
-            if (sk > 0) body.addProperty("suKienId", idSuKien.get(sk - 1)[0]);
+            SuKienChon suKien = (SuKienChon) cbSuKien.getSelectedItem();
+            if (suKien != null && suKien.id() > 0) {
+                body.addProperty("suKienId", suKien.id());
+                if (sua && suKien.id() == Api.n(cv, "suKienId")) {
+                    body.addProperty("tenSuKien", Api.s(cv, "tenSuKien"));
+                }
+            }
             if (sua) {
                 // cap-nhat ghi đè toàn bộ -> giữ nguyên mã, trạng thái, tiến độ cán bộ đã cập nhật
                 body.addProperty("maCv", Api.s(cv, "maCv"));
@@ -205,11 +251,11 @@ public class QuanLyCongViecPanel extends TrangAdmin {
             } else {
                 body.addProperty("nguoiGiao", "admin");
             }
-            Api.chayThaoTac(d, () -> sua ? Api.put("/api/cong-viec/cap-nhat/" + Api.n(cv, "id"), body)
-                    : Api.post("/api/cong-viec/them", body), kq -> {
-                d.dispose();
-                HopThoai.thanhCong(this, sua ? "Đã lưu công việc"
-                        : "Đã giao " + Api.s(Api.obj(kq), "maCv") + " cho " + cbCanBo.getSelectedItem());
+            loi.setText(" ");
+            luu.setEnabled(false);
+            SuKienDialogs.guiForm(d, luu, loi, () -> sua ? Api.put("/api/cong-viec/cap-nhat/" + Api.n(cv, "id"), body)
+                    : Api.post("/api/cong-viec/them", body), () -> {
+                HopThoai.thanhCong(this, sua ? "Đã lưu công việc" : "Đã giao công việc cho " + canBo.hienThi());
                 taiLai();
             });
         });

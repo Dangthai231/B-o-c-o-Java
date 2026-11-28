@@ -13,6 +13,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * KHUNG CHÍNH của Quản trị viên (giống ảnh thiết kế):
@@ -38,6 +39,7 @@ public class DashboardAdmin implements TrangAdmin.DieuHuong {
     private final String tenDangNhap;
     private CardLayout cardLayout;
     private boolean dangTaiChuong;
+    private boolean canTaiLaiChuong;
     private final Map<String, TrangAdmin> cacTrang = new LinkedHashMap<>();
     private final Map<String, JButton> cacMuc = new LinkedHashMap<>();
 
@@ -96,6 +98,7 @@ public class DashboardAdmin implements TrangAdmin.DieuHuong {
         btnThuGonMenu.setIcon(Icons.of(Icons.MENU, 20, Theme.TEXT));
         txtTimNhanh.addActionListener(e -> timTaiKhoan(txtTimNhanh.getText().trim()));
         btnThongBao.setIcon(Icons.of(Icons.BELL, 18, Theme.TEXT));
+        btnThongBao.setToolTipText("Xem kế hoạch, thông báo và yêu cầu đang chờ xử lý trong Tổng quan");
         btnThongBao.addActionListener(e -> moTrang(TONG_QUAN));
         btnTaiKhoan.setText(tenDangNhap);
         btnTaiKhoan.setIcon(UI.avatar(UI.vietTat(tenDangNhap), 30, Theme.SIDEBAR));
@@ -195,7 +198,10 @@ public class DashboardAdmin implements TrangAdmin.DieuHuong {
     /** Lấy tổng số việc đang chờ (kế hoạch + thông báo + yêu cầu) để hiện trên chuông. */
     @Override
     public void capNhatChuong() {
-        if (dangTaiChuong) return;
+        if (dangTaiChuong) {
+            canTaiLaiChuong = true;
+            return;
+        }
         dangTaiChuong = true;
         new SwingWorker<Long, Void>() {
             @Override
@@ -209,11 +215,20 @@ public class DashboardAdmin implements TrangAdmin.DieuHuong {
                 try {
                     long so = get();
                     lblSoViecCanXuLy.setText(so <= 0 ? "" : (so > 9 ? "9+" : String.valueOf(so)));
-                } catch (Exception ignored) {
-                    lblSoViecCanXuLy.setText("");
+                    lblSoViecCanXuLy.setToolTipText(so + " việc đang chờ xử lý");
+                } catch (ExecutionException ex) {
+                    lblSoViecCanXuLy.setText("!");
+                    lblSoViecCanXuLy.setToolTipText("Không tải được số việc đang chờ xử lý");
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                    lblSoViecCanXuLy.setText("!");
+                    lblSoViecCanXuLy.setToolTipText("Yêu cầu tải số việc đang chờ xử lý bị gián đoạn");
                 }
                 dangTaiChuong = false;
-                lblSoViecCanXuLy.repaint();
+                if (canTaiLaiChuong) {
+                    canTaiLaiChuong = false;
+                    capNhatChuong();
+                }
             }
         }.execute();
     }
